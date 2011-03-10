@@ -31,7 +31,7 @@ DATABASES = {
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -45,7 +45,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(APP, 'geocamLens', 'media')
+MEDIA_ROOT = os.path.join(APP, 'geocamLens', 'static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -70,7 +70,7 @@ MEDIA_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '6m@sl10z5o3snr+5ee+8*k7cuq1kz9(vl-r%%c@z(57^slr+7d'
+SECRET_KEY = '401orbwfoc8!yik&c47xw%lt*&)14e=+ibww2v^(7zcy#**c48'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
