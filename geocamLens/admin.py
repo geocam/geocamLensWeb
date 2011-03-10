@@ -5,3 +5,9 @@
 # __END_LICENSE__
 
 from django.contrib import admin
+
+from geocamLens.models import *
+
+admin.site.register(Snapshot)
+admin.site.register(GoogleEarthSession)
+admin.site.register(Photo)

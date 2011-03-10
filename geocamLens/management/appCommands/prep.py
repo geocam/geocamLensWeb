@@ -4,27 +4,44 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-"""
-This is a place to put any prep code you need to run before your app
-is ready.
-
-For example, you might need to render some icons.  The convention for
-that is to put the source data in your app's media_src directory and
-render the icons into your app's build/media directory (outside version
-control).
-
-How this script gets run: when the site admin runs "./manage.py prep",
-one of the steps is "prepapps", which calls
-management/appCommands/prep.py command for each app (if it exists).
-"""
+import logging
+import os
+from glob import glob
 
 from django.core.management.base import NoArgsCommand
 
-from geocamUtil.management import commandUtil
+from geocamUtil.Builder import Builder
+from geocamUtil.icons import svg, rotate
+from geocamUtil.Installer import Installer
+
+from geocamLens import settings
 
 class Command(NoArgsCommand):
-    help = 'Prep geocamLens'
+    help = 'Prep geocamLens app'
     
     def handle_noargs(self, **options):
-        # put your code here
-        pass
+        up = os.path.dirname
+        appDir = up(up(up(os.path.abspath(__file__))))
+        print 'appDir:', appDir
+        builder = Builder()
+
+        # render svg to png
+        if settings.GEOCAM_LENS_RENDER_SVG_ICONS:
+            svgGlob = '%s/media_src/icons/*.svg' % appDir
+            svgOutput = '%s/build/media/geocamLens/icons/map/' % appDir
+            logging.debug('svgIcons %s %s' % (svgGlob, svgOutput))
+            for imPath in glob(svgGlob):
+                svg.buildIcon(builder, imPath, outputDir=svgOutput)
+
+        # link static stuff into build/media
+        inst = Installer(builder)
+        inst.installRecurseGlob('%s/static/*' % appDir,
+                                '%s/build/media' % appDir)
+
+        # rotate pngs
+        rotGlob = '%s/build/media/geocamLens/icons/map/*Point.png' % appDir
+        rotOutput = '%s/build/media/geocamLens/icons/mapr' % appDir
+        logging.debug('rotateIcons %s %s' % (rotGlob, rotOutput))
+        for imPath in glob(rotGlob):
+            rotate.buildAllDirections(builder, imPath, outputDir=rotOutput)
+

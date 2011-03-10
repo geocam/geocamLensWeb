@@ -5,8 +5,14 @@
 # __END_LICENSE__
 
 """
-geocamLensWeb
+geocamLens
 """
+
+import django.conf
+
+from geocamUtil.MultiSettings import MultiSettings
+from geocamCore import defaultSettings as coreDefaults
+from geocamLens import defaultSettings as lensDefaults
 
 __version_info__ = {
     'major': 0,
@@ -30,16 +36,4 @@ def get_version():
 
 __version__ = get_version()
 
-MultiSettings = None
-try:
-    from geocamUtil.MultiSettings import MultiSettings
-except ImportError:
-    import sys
-    print >>sys.stderr, "warning: geocamUtil not installed, can't load defaultSettings.py"
-
-if MultiSettings:
-    import django.conf
-    import defaultSettings
-    settings = MultiSettings(django.conf.settings, defaultSettings)
-else:
-    from django.conf import settings
+settings = MultiSettings(django.conf.settings, coreDefaults, lensDefaults)
