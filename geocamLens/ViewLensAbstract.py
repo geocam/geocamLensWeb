@@ -104,8 +104,8 @@ class ViewLensAbstract(ViewKml):
                            for f in exportedVars))
         return json.dumps(exportDict)
 
-    def editImage0(self, request, uuid, template):
-        img = self.defaultImageModel.objects.get(uuid = uuid)
+    def editImage0(self, request, id, template):
+        img = self.defaultImageModel.objects.get(id=id)
         ajax = request.POST.has_key('ajax')
         if request.method == 'POST':
             form = EditImageForm(request.POST, instance=img)
@@ -130,11 +130,11 @@ class ViewLensAbstract(ViewKml):
                       form=form),
                  context_instance = RequestContext(request)))
         
-    def editImage(self, request, uuid):
-        return self.editImage0(request, uuid, 'editImage.html')
+    def editImage(self, request, id):
+        return self.editImage0(request, id, 'editImage.html')
 
-    def editImageWrapper(self, request, uuid):
-        return self.editImage0(request, uuid, 'editImageWrapper.html')
+    def editImageWrapper(self, request, id):
+        return self.editImage0(request, id, 'editImageWrapper.html')
 
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)

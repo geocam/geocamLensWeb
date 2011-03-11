@@ -36,8 +36,8 @@ urlpatterns = patterns(
     (r'^upload-m/$', views.uploadImageAuth,
      {'challenge': 'basic'}),
 
-    (r'^edit/photo/(?P<uuid>[^/]+)/$', views.editImageWrapper),
-    (r'^editWidget/photo/(?P<uuid>[^/]+)/$', views.editImage),
+    (r'^edit/photo/(?P<id>[^/]+)/$', views.editImageWrapper),
+    (r'^editWidget/photo/(?P<id>[^/]+)/$', views.editImage),
 
     # legacy URLs, compatible with the old version of GeoCam
     # Mobile *if* user authentication is off (not recommended!).

@@ -134,6 +134,8 @@ class Image(coreModels.PointFeature):
                                            content_type_field='imgType',
                                            object_id_field='imgId')
 
+    viewerExtension = '.jpg'
+
     class Meta:
         abstract = True
 
@@ -202,9 +204,6 @@ class Image(coreModels.PointFeature):
         self.makeThumbnail(settings.GEOCAM_CORE_GALLERY_THUMB_SIZE)
         self.makeThumbnail(settings.GEOCAM_CORE_DESC_THUMB_SIZE)
         # remember to call save() after process()
-
-    def getViewerUrl(self):
-        return '%sview/%s/' % (settings.SCRIPT_NAME, self.uuid)
 
     def getCaptionHtml(self):
         return ''
