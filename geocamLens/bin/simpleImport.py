@@ -76,8 +76,7 @@ def importDir(opts, dir, uploadClient):
 
     folderName = os.path.basename(dir)
     if not opts.upload:
-        folder, created = Folder.objects.get_or_create(name=folderName,
-                                                       defaults=dict(timeZone=timeZone))
+        folder, created = Folder.objects.get_or_create(name=folderName)
 
     photosToUpload = []
 

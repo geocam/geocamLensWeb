@@ -252,7 +252,8 @@ class Image(coreModels.PointFeature):
         if folder == None:
             folder = coreModels.Folder.objects.get(id=1)
 
-        tz = pytz.timezone(folder.timeZone)
+        # FIX figure out what time zone to show
+        tz = pytz.timezone(settings.TIME_ZONE)
         timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
         if timestampStr == None:
             timestampUtc = None
