@@ -1,13 +1,39 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block siteSection %}Image Upload{% endblock %}
 
 {% block contents %}
 
+<!--
 <form action="." method="post" enctype="multipart/form-data">
   {{ form.as_p }}
   <p><input type="submit" value="Submit"/></p>
 </form>
 </p>
+-->
+
+<form name="upload" method="POST" action=".">
+    <h1 class="geocam_table_title">Upload Photo</h1>
+
+    <table class="geocam_table" border="0" cellspacing="0" cellpadding="0">
+        {% for field in form %}
+            <tr>
+                <td>{{ field.label_tag }}</td>
+            </tr>
+            <tr>
+                <td>{{ field }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
+                <a href="javascript:void();" onclick="document.forms['upload'].submit();" class="big_awesome_button">Upload</a>
+            </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+    </table>
+    {% csrf_token %}
+</form>   
+
 
 {% endblock %}
