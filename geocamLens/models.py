@@ -183,9 +183,8 @@ class Image(coreModels.PointFeature):
 
     def getRotatedIconDict(self):
         if self.yaw == None:
-            rot = 0
-        else:
-            rot = self.yaw
+            return self.getIconDict()
+        rot = self.yaw
         rotRounded = 10 * int(0.1 * rot + 0.5)
         if rotRounded == 360:
             rotRounded = 0
