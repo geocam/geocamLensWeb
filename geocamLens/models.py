@@ -105,13 +105,19 @@ class Snapshot(models.Model):
     ymax = models.FloatField()
     title = models.CharField(max_length=64)
     comment = models.TextField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
     dateCreated = models.DateTimeField(null=True, blank=True)
+    dateUpdated = models.DateTimeField(null=True, blank=True)
 
     # img is a virtual field, not actually present in the db.  it
     # specifies which image this snapshot is associated with based on
     # imgType (which db table to look in) and imgId (which row in the
     # table).
     img = generic.GenericForeignKey('imgType', 'imgId')
+
+    def save(self, **kwargs):
+        self.dateUpdated = datetime.datetime.utcnow()
+        super(Snapshot, self).save(**kwargs)
 
     def __unicode__(self):
         return self.title
