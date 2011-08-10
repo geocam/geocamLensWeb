@@ -98,6 +98,7 @@ DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
 class Snapshot(models.Model):
     imgType = models.ForeignKey(ContentType, editable=False)
     imgId = models.PositiveIntegerField()
+    uuid = UuidField()
     xmin = models.FloatField()
     ymin = models.FloatField()
     xmax = models.FloatField()
