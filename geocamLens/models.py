@@ -146,6 +146,9 @@ class Image(coreModels.PointFeature):
     class Meta:
         abstract = True
 
+    def getActiveSnapshots(self):
+        return self.snapshot_set.filter(status=STATUS_ACTIVE)
+
     def getThumbnailPath(self, width):
         return os.path.join(self.getDir(), 'th%d.jpg' % width)
 
