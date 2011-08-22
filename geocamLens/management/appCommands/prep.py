@@ -11,7 +11,7 @@ from glob import glob
 from django.core.management.base import NoArgsCommand
 
 from geocamUtil.Builder import Builder
-from geocamUtil.icons import svg, rotate
+from geocamUtil.icons import svg, rotate, halo
 from geocamUtil.Installer import Installer
 
 from geocamLens import settings
@@ -26,9 +26,9 @@ class Command(NoArgsCommand):
         builder = Builder()
 
         # render svg to png
+        svgOutput = '%s/build/media/geocamLens/icons/map/' % appDir
         if settings.GEOCAM_LENS_RENDER_SVG_ICONS:
             svgGlob = '%s/media_src/icons/*.svg' % appDir
-            svgOutput = '%s/build/media/geocamLens/icons/map/' % appDir
             logging.debug('svgIcons %s %s' % (svgGlob, svgOutput))
             for imPath in glob(svgGlob):
                 svg.buildIcon(builder, imPath, outputDir=svgOutput)
@@ -38,8 +38,17 @@ class Command(NoArgsCommand):
         inst.installRecurseGlob('%s/static/*' % appDir,
                                 '%s/build/media' % appDir)
 
+        # make highlighted versions of icons
+        dstGlob = svgOutput + '*.png'
+        logging.debug('highlightIcons %s' % dstGlob)
+        for dst in glob(dstGlob):
+            if 'Highlighted' in dst:
+                continue
+            dstHighlighted = os.path.splitext(dst)[0] + 'Highlighted.png'
+            halo.addHalo(builder, dst, dstHighlighted)
+        
         # rotate pngs
-        rotGlob = '%s/build/media/geocamLens/icons/map/*Point.png' % appDir
+        rotGlob = '%s/build/media/geocamLens/icons/map/*Point*.png' % appDir
         rotOutput = '%s/build/media/geocamLens/icons/mapr' % appDir
         logging.debug('rotateIcons %s %s' % (rotGlob, rotOutput))
         for imPath in glob(rotGlob):
