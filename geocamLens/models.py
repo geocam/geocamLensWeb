@@ -115,8 +115,9 @@ class Snapshot(models.Model):
     # table).
     img = generic.GenericForeignKey('imgType', 'imgId')
 
-    def save(self, **kwargs):
-        self.dateUpdated = datetime.datetime.utcnow()
+    def save(self, updateDate=True, **kwargs):
+        if updateDate:
+            self.dateUpdated = datetime.datetime.utcnow()
         super(Snapshot, self).save(**kwargs)
 
     def __unicode__(self):
