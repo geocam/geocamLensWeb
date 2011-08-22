@@ -194,15 +194,12 @@ class Image(coreModels.PointFeature):
 
     def getRotatedIconDict(self):
         if self.yaw == None:
-            return self.getIconDict()
+            return self.getStyledIconDict()
         rot = self.yaw
         rotRounded = 10 * int(0.1 * rot + 0.5)
         if rotRounded == 360:
             rotRounded = 0
-        name = self.icon
-        rotName = '%s%03d' % (name, rotRounded)
-        return dict(url=getIconUrl(rotName),
-                    size=getIconSize(rotName))
+        return self.getStyledIconDict(kind='', suffix='%03d' % rotRounded)
 
     def process(self, importFile=None):
         self.status = STATUS_ACTIVE
