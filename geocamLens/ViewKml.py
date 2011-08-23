@@ -8,6 +8,8 @@ import urllib
 import datetime
 import sys
 
+from django.core import urlresolvers
+
 from geocamUtil import KmlUtil
 from geocamCore.models import Feature
 
@@ -20,8 +22,9 @@ class BogusRequest:
 
 class ViewKml(object):
     def kmlGetStartSessionKml(self, request, sessionId):
-        quotedId = urllib.quote_plus(sessionId)
-        absUrl = request.build_absolute_uri('%skml/%s/initial.kml' % (settings.SCRIPT_NAME, quotedId))
+        urlPath = urlresolvers.reverse('geocamLens_kmlGetSessionResponse',
+                                       args=[sessionId, 'initial'])
+        absUrl = request.build_absolute_uri(urlPath)
         if settings.GEOCAM_LENS_KML_FLY_TO_VIEW:
             flyToView = '<flyToView>1</flyToView>'
         else:
@@ -68,12 +71,14 @@ class ViewKml(object):
         allFeaturesFolder = self.kmlGetAllFeaturesFolder(request,
                                                          session.getSearchQuery(),
                                                          newUtime)
-        quotedId = urllib.quote_plus(sessionId)
-        updateUrl = request.build_absolute_uri('%skml/%s/update.kml' % (settings.SCRIPT_NAME, quotedId))
-        return ("""
+        result = ("""
 <Document id="allFeatures">
   <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
-
+""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE))
+        if 0:
+            quotedId = urllib.quote_plus(sessionId)
+            updateUrl = request.build_absolute_uri('%skml/%s/update.kml' % (settings.SCRIPT_NAME, quotedId))
+            result += ("""
   <NetworkLink>
     <name>Update</name>
     <Link>
@@ -82,13 +87,14 @@ class ViewKml(object):
       <refreshInterval>30</refreshInterval>
     </Link>
   </NetworkLink>
-
+""" % dict(updateUrl=updateUrl))
+            
+        result += ("""
   %(allFeaturesFolder)s
 
 </Document>
-""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
-           updateUrl=updateUrl,
-           allFeaturesFolder=allFeaturesFolder))
+""" % dict(allFeaturesFolder=allFeaturesFolder))
+        return result
     
     def kmlGetUpdateKml(self, request, sessionId):
         # FIX: implement me -- can use old version of geocam for reference

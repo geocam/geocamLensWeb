@@ -17,11 +17,12 @@ urlpatterns = patterns(
 
     # kml
     (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession,
-     {'readOnly': True}),
+     {'readOnly': True}, 'geocamLens_kmlStartSession'),
     (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
      # google earth can't handle django challenge
      {'challenge': 'digest',
-      'readOnly': True}),
+      'readOnly': True},
+     'geocamLens_kmlGetSessionResponse'),
     
     # features
     (r'^features.json', views.featuresJson, {'readOnly': True}),

@@ -216,12 +216,13 @@ class Image(coreModels.PointFeature):
         return ''
 
     def getBalloonHtml(self, request):
-        dw, dh = self.getThumbSize(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])
+        result = ['<div>\n']
+        
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
-        thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0]))
-        captionHtml = self.getCaptionHtml()
-        return ("""
-<div>
+        if self.widthPixels != 0:
+            dw, dh = self.getThumbSize(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])
+            thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0]))
+            result.append("""
   <a href="%(viewerUrl)s"
      title="Show high-res view">
     <img
@@ -231,13 +232,17 @@ class Image(coreModels.PointFeature):
      border="0"
      />
   </a>
-  %(captionHtml)s
-</div>
 """ % dict(viewerUrl=viewerUrl,
            thumbnailUrl=thumbnailUrl,
-           captionHtml=captionHtml,
            dw=dw,
            dh=dh))
+        else:
+            result.append("""
+<div><a href="%(viewerUrl)s">Show detail view</a></div>
+""" % dict(viewerUrl=viewerUrl))
+        result.append(self.getCaptionHtml())
+        result.append('</div>\n')
+        return ''.join(result)
 
     def getXmpVals(self, storePath):
         xmp = Xmp(storePath)
