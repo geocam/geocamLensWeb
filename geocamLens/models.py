@@ -182,7 +182,7 @@ class Image(coreModels.PointFeature):
             try:
                 im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
             except IOError, e:
-                print >>sys.stderr, 'warning: PIL thumbnail() failed on %s, falling back to resize()' % previewOriginalPath
+                # fall back to resize
                 im.resize((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
             mkdirP(self.getDir())
             im.save(self.getThumbnailPath(maxOutWidth))
