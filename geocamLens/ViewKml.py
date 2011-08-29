@@ -48,7 +48,8 @@ class ViewKml(object):
         return KmlUtil.wrapKmlDjango(self.kmlGetStartSessionKml(request, sessionId))
 
     def kmlGetAllFeaturesFolder(self, request, searchQuery, newUtime):
-        features = self.search.searchFeatures(Feature.objects.all(), searchQuery)
+        allFeatures = self.search.getAllFeatures()
+        features = self.search.searchFeatures(allFeatures, searchQuery)
         if 0:
             # FIX: update models so this filtering statement can work
             features = features.filter(mtime__lte=newUtime,
