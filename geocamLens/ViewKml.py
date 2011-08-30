@@ -16,6 +16,8 @@ from geocamCore.models import Feature
 from geocamLens.models import GoogleEarthSession
 from geocamLens import settings
 
+CACHED_CSS = None
+
 class BogusRequest:
     def build_absolute_uri(self, text):
         return text
@@ -72,10 +74,25 @@ class ViewKml(object):
         allFeaturesFolder = self.kmlGetAllFeaturesFolder(request,
                                                          session.getSearchQuery(),
                                                          newUtime)
+        global CACHED_CSS
+        if not CACHED_CSS:
+            cssPath = '%sgeocamCore/css/share.css' % settings.MEDIA_ROOT
+            CACHED_CSS = file(cssPath, 'r').read()
         result = ("""
 <Document id="allFeatures">
   <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
-""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE))
+  <Style id="shareCss">
+    <BalloonStyle>
+      <text><![CDATA[
+        <style type="text/css">
+          %(CACHED_CSS)s
+        </style>
+        $[description]
+      ]]></text>
+    </BalloonStyle>
+  </Style>
+""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
+           CACHED_CSS=CACHED_CSS))
         if 0:
             quotedId = urllib.quote_plus(sessionId)
             updateUrl = request.build_absolute_uri('%skml/%s/update.kml' % (settings.SCRIPT_NAME, quotedId))

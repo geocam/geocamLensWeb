@@ -11,6 +11,7 @@ import shutil
 import datetime
 import random
 import re
+from cStringIO import StringIO
 
 import pytz
 import PIL.Image
@@ -32,6 +33,7 @@ from geocamUtil.gpx import TrackLog
 from geocamUtil.Xmp import Xmp
 from geocamUtil.TimeUtil import parseUploadTime
 from geocamUtil.FileUtil import mkdirP
+from geocamUtil import TimeUtil
 import geocamCore.models as coreModels
 
 from geocamLens import settings
@@ -94,6 +96,9 @@ WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_EDITS, 'Needs edits'),
                            (WF_REJECTED, 'Rejected'),
                            )
 DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
+
+CARDINAL_DIRECTIONS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+                       'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
 
 class Snapshot(models.Model):
     imgType = models.ForeignKey(ContentType, editable=False)
@@ -221,6 +226,7 @@ class Image(coreModels.PointFeature):
 
     def getBalloonHtml(self, request):
         result = ['<div>\n']
+        result.append(self.getCaptionHeader())
         
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
         if self.widthPixels != 0:
@@ -244,7 +250,7 @@ class Image(coreModels.PointFeature):
             result.append("""
 <div><a href="%(viewerUrl)s">Show detail view</a></div>
 """ % dict(viewerUrl=viewerUrl))
-        result.append(self.getCaptionHtml())
+        result.append(self.getCaptionInfoTable())
         result.append('</div>\n')
         return ''.join(result)
 
@@ -408,6 +414,81 @@ class Image(coreModels.PointFeature):
                       yaw=self.yaw,
                       yawRef=YAW_REF_LOOKUP[self.yawRef])
         return result
+
+    def getCaptionTimeZone(self):
+        return pytz.timezone(settings.DEFAULT_TIME_ZONE['code'])
+
+    def getCaptionTimeStamp(self):
+        if self.timestamp == None:
+            return '(unknown)'
+        else:
+            tz = self.getCaptionTimeZone()
+            tzName = settings.DEFAULT_TIME_ZONE['name']
+            localizedDt = pytz.utc.localize(self.timestamp).astimezone(tz).replace(tzinfo=None)
+            return '%s %s' % (str(localizedDt), tzName)
+
+    def getCaptionFieldLatLon(self):
+        if self.latitude == None:
+            val = '(unknown)'
+        else:
+            val = '%.5f, %.5f' % (self.latitude, self.longitude)
+        return ['lat, lon', val]
+
+    def getCaptionFieldHeading(self):
+        if self.yaw == None:
+            val = '(unknown)'
+        else:
+            dirIndex = int(round(self.yaw / 22.5)) % 16
+            cardinal = CARDINAL_DIRECTIONS[dirIndex]
+            
+            if self.yawRef == None:
+                yawStr = 'unknown'
+            else:
+                yawStr = YAW_REF_LOOKUP[self.yawRef]
+                
+            val = ('%s %d&deg; (ref. %s)'
+                   % (cardinal, round(self.yaw), yawStr))
+        return ['heading', val]
+
+    def getCaptionFieldTime(self):
+        if self.timestamp == None:
+            val = '(unknown)'
+        else:
+            val = self.getCaptionTimeStamp()
+        return ['time', val]
+
+    def getCaptionField(self, field):
+        funcName = 'getCaptionField' + field[0].upper() + field[1:]
+        return getattr(self, funcName)()
+
+    def getCaptionFields(self):
+        return ['latLon', 'heading', 'time']
+
+    def getCaptionHeader(self):
+        if self.timestamp == None:
+            tsVal = '(unknown)'
+        else:
+            tsVal = TimeUtil.getTimeShort(self.timestamp, tz=self.getCaptionTimeZone())
+        if self.name == None:
+            nameVal = '(untitled)'
+        else:
+            nameVal = self.name
+        tsColor = '#000077' # dark blue
+        return ("""
+<div style="padding-top: 5px; padding-bottom: 5px;">
+  <span class="geocamCaption_name">%(nameVal)s</span>
+  <span class="geocamCaption_timeShort">%(tsVal)s</span>
+</div>
+""" % dict(nameVal=nameVal, tsVal=tsVal, tsColor=tsColor))
+
+    def getCaptionInfoTable(self):
+        out = StringIO()
+        out.write('<table>')
+        for field in self.getCaptionFields():
+            label, val = self.getCaptionField(field)
+            out.write('<tr><td class="geocamCaption_fieldLabel">%s</td><td>%s</td></tr>' % (label, val))
+        out.write('</table>')
+        return out.getvalue()
 
 class Photo(Image):
     objects = FinalModelManager(parentModel=Image)
