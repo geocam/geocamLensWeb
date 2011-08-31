@@ -12,6 +12,7 @@ import datetime
 import random
 import re
 from cStringIO import StringIO
+import stat
 
 import pytz
 import PIL.Image
@@ -180,17 +181,25 @@ class Image(coreModels.PointFeature):
 
     def makeThumbnail0(self, previewOriginalPath, thumbSize):
         maxOutWidth, maxOutHeight = thumbSize
-        if previewOriginalPath is not None and not os.path.exists(self.getThumbnailPath(maxOutWidth)):
-            im = PIL.Image.open(previewOriginalPath)
-            fullWidth, fullHeight = im.size
-            thumbWidth, thumbHeight = self.calcThumbSize(fullWidth, fullHeight, maxOutWidth, maxOutHeight)
-            try:
-                im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
-            except IOError, e:
-                # fall back to resize
-                im.resize((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
-            mkdirP(self.getDir())
-            im.save(self.getThumbnailPath(maxOutWidth))
+        if previewOriginalPath is None:
+            return
+        thumbPath = self.getThumbnailPath(maxOutWidth)
+        if os.path.exists(thumbPath):
+            thumbMtime = os.stat(thumbPath)[stat.ST_MTIME]
+            fullMtime = os.stat(previewOriginalPath)[stat.ST_MTIME]
+            if fullMtime < thumbMtime:
+                return
+
+        im = PIL.Image.open(previewOriginalPath)
+        fullWidth, fullHeight = im.size
+        thumbWidth, thumbHeight = self.calcThumbSize(fullWidth, fullHeight, maxOutWidth, maxOutHeight)
+        try:
+            im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
+        except IOError, e:
+            # fall back to resize
+            im.resize((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
+        mkdirP(self.getDir())
+        im.save(self.getThumbnailPath(maxOutWidth))
 
     def makeThumbnail(self, thumbSize):
         previewOriginalPath = self.getImagePath()
