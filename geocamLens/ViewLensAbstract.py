@@ -65,6 +65,17 @@ class ViewLensAbstract(ViewKml):
         except BadQuery, e:
             errorMessage = e.message
         
+        numFeaturesParam = request.GET.get('n')
+        if numFeaturesParam:
+            if numFeaturesParam == 'all':
+                numFeatures = None
+            else:
+                numFeatures = int(numFeaturesParam)
+        else:
+            numFeatures = settings.GEOCAM_LENS_DEFAULT_NUM_FEATURES
+        if numFeatures != None:
+            matches = matches[:numFeatures]
+
         if errorMessage:
             response = {'error': {'code': -32099,
                                   'message': errorMessage}}
