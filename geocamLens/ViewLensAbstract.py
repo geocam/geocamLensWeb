@@ -110,7 +110,8 @@ class ViewLensAbstract(ViewKml):
                         'GEOCAM_CORE_DESC_THUMB_SIZE',
                         'GEOCAM_AWARE_MAP_BACKEND',
                         'GEOCAM_AWARE_USE_MARKER_CLUSTERING',
-                        'GEOCAM_AWARE_USE_TRACKING']
+                        'GEOCAM_AWARE_USE_TRACKING',
+                        'GEOCAM_AWARE_DEFAULT_MAP_BOUNDS']
         exportDict = dict(((f, getattr(settings, f))
                            for f in exportedVars))
         return json.dumps(exportDict)
