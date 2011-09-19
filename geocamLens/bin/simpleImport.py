@@ -32,11 +32,13 @@ from geocamLens.UploadClient import UploadClient
 from geocamLens.models import Photo
 from geocamLens import settings
 
+
 def checkMissing(val):
     if val == -999:
         return None
     else:
         return val
+
 
 def importImageDirect(imagePath, attributes):
     try:
@@ -62,8 +64,10 @@ def importImageDirect(imagePath, attributes):
         photo.save()
         print 'processed', unicode(photo)
 
+
 def getBogusUuid(name, userName, timeStr):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, userName, timeStr)))    
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, userName, timeStr)))
+
 
 def importDir(opts, dir, uploadClient):
     dir = os.path.realpath(dir)
@@ -72,7 +76,7 @@ def importDir(opts, dir, uploadClient):
     if os.path.exists(tzFile):
         timeZone = file(tzFile, 'r').read().strip()
     else:
-        timeZone = 'US/Pacific' # default
+        timeZone = 'US/Pacific'  # default
 
     folderName = os.path.basename(dir)
     if not opts.upload:
@@ -147,7 +151,7 @@ def importDir(opts, dir, uploadClient):
                                   userName=opts.user,
                                   uuid=bogusUuid,
                                   folder=os.path.basename(os.path.dirname(img)))
-                
+
                 photosToUpload.append(dict(imagePath=img,
                                            attributes=attributes))
         else:
@@ -159,6 +163,7 @@ def importDir(opts, dir, uploadClient):
             uploadClient.uploadImage(p['imagePath'], p['attributes'], downsampleFactor=int(opts.downsample))
         else:
             importImageDirect(p['imagePath'], p['attributes'])
+
 
 def doit(opts, importDirs):
     if opts.downsample != '1':
@@ -183,6 +188,7 @@ def doit(opts, importDirs):
             f.delete()
     for dir in importDirs:
         importDir(opts, dir, uploadClient)
+
 
 def main():
     import optparse

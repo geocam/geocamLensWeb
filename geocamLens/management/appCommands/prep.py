@@ -16,9 +16,10 @@ from geocamUtil.Installer import Installer
 
 from geocamLens import settings
 
+
 class Command(NoArgsCommand):
     help = 'Prep geocamLens app'
-    
+
     def handle_noargs(self, **options):
         up = os.path.dirname
         appDir = up(up(up(os.path.abspath(__file__))))
@@ -46,11 +47,10 @@ class Command(NoArgsCommand):
                 continue
             dstHighlighted = os.path.splitext(dst)[0] + 'Highlighted.png'
             halo.addHalo(builder, dst, dstHighlighted)
-        
+
         # rotate pngs
         rotGlob = '%s/build/media/geocamLens/icons/map/*Point*.png' % appDir
         rotOutput = '%s/build/media/geocamLens/icons/mapr' % appDir
         logging.debug('rotateIcons %s %s' % (rotGlob, rotOutput))
         for imPath in glob(rotGlob):
             rotate.buildAllDirections(builder, imPath, outputDir=rotOutput)
-
