@@ -6,13 +6,12 @@
 
 import datetime
 
-from django.core.exceptions import ValidationError
 from django import forms
-from django.contrib.auth.models import User
 
 from geocamUtil.forms.UuidField import UuidField
 
 from geocamLens.models import Photo
+
 
 # the field names in this form are currently retained for backward compatibility with old versions
 # of GeoCam Mobile
@@ -33,6 +32,7 @@ class UploadImageForm(forms.Form):
     uuid = UuidField(required=False)
     folder = forms.CharField(max_length=32, required=False)
 
+
 class EditImageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditImageForm, self).__init__(*args, **kwargs)
@@ -44,4 +44,3 @@ class EditImageForm(forms.ModelForm):
     class Meta:
         model = Photo
         fields = ('notes', 'tags', 'latitude', 'longitude', 'altitude', 'altitudeRef', 'yaw', 'yawRef', 'icon')
-

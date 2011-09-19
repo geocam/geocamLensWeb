@@ -4,9 +4,12 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
+"""
+Models for geocamLens app.
+"""
+
 import os
 import sys
-import glob
 import shutil
 import datetime
 import random
@@ -18,19 +21,13 @@ import pytz
 import PIL.Image
 from django.db import models
 from django.utils.safestring import mark_safe
-from tagging.fields import TagField
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.contrib.contenttypes import generic
 import tagging
 
-from geocamUtil import anyjson as json
-from geocamUtil.models.ExtrasField import ExtrasField
 from geocamUtil.models.UuidField import UuidField
 from geocamUtil.models.managers import AbstractModelManager, FinalModelManager
-from geocamUtil.icons import ICON_URL_CACHE, getIconSize, getIconUrl
-from geocamUtil.gpx import TrackLog
+from geocamUtil.icons import ICON_URL_CACHE
 from geocamUtil.Xmp import Xmp
 from geocamUtil.TimeUtil import parseUploadTime
 from geocamUtil.FileUtil import mkdirP
@@ -40,14 +37,10 @@ import geocamCore.models as coreModels
 from geocamLens import settings
 
 TIME_ZONES = None
-try:
-    import pytz
-except ImportError:
-    TIME_ZONES = ['US/Pacific'] # try to fail gracefully
-else:
-    TOP_TIME_ZONES = ['US/Pacific', 'US/Eastern', 'US/Central', 'US/Mountain']
-    TIME_ZONES = TOP_TIME_ZONES + [tz for tz in pytz.common_timezones if tz not in TOP_TIME_ZONES]
-TIME_ZONE_CHOICES = [(x,x) for x in TIME_ZONES]
+TOP_TIME_ZONES = ['US/Pacific', 'US/Eastern', 'US/Central', 'US/Mountain']
+TIME_ZONES = TOP_TIME_ZONES + [tz for tz in pytz.common_timezones
+                               if tz not in TOP_TIME_ZONES]
+TIME_ZONE_CHOICES = [(x, x) for x in TIME_ZONES]
 DEFAULT_TIME_ZONE = TIME_ZONES[0]
 
 PERM_VIEW = 0
@@ -79,29 +72,39 @@ ALTITUDE_REF_LOOKUP = dict(ALTITUDE_REF_CHOICES)
 ALTITUDE_REF_LOOKUP[''] = None
 DEFAULT_ALTITUDE_REF = ALTITUDE_REF_CHOICES[0][0]
 
-STATUS_CHOICES = (('p', 'pending'), # in db but not fully processed yet
-                  ('a', 'active'),  # active, display this to user
-                  ('d', 'deleted'), # deleted but not purged yet
-                  )
-# define constants like STATUS_PENDING based on above choices
-for code, label in STATUS_CHOICES:
-    globals()['STATUS_' + label.upper()] = code
+STATUS_PENDING = 'p'
+STATUS_ACTIVE = 'a'
+STATUS_DELETED = 'd'
+
+STATUS_CHOICES = (
+    # in db but not fully processed yet
+    (STATUS_PENDING, 'pending'),
+    # active, display this to user
+    (STATUS_ACTIVE, 'active'),
+    # deleted but not purged yet
+    (STATUS_DELETED, 'deleted'),
+    )
 
 WF_NEEDS_EDITS = 0
 WF_SUBMITTED_FOR_VALIDATION = 1
 WF_VALID = 2
 WF_REJECTED = 3
-WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_EDITS, 'Needs edits'),
-                           (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
-                           (WF_VALID, 'Valid'),
-                           (WF_REJECTED, 'Rejected'),
-                           )
+WORKFLOW_STATUS_CHOICES = (
+    (WF_NEEDS_EDITS, 'Needs edits'),
+    (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
+    (WF_VALID, 'Valid'),
+    (WF_REJECTED, 'Rejected'),
+    )
 DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
 
 CARDINAL_DIRECTIONS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                        'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
 
+
 class Snapshot(models.Model):
+    """
+    A snapshot is a subframe of an image with an associated comment.
+    """
     imgType = models.ForeignKey(ContentType, editable=False)
     imgId = models.PositiveIntegerField()
     uuid = UuidField()
@@ -111,7 +114,9 @@ class Snapshot(models.Model):
     ymax = models.FloatField()
     title = models.CharField(max_length=64)
     comment = models.TextField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+    status = models.CharField(max_length=1,
+                              choices=STATUS_CHOICES,
+                              default=STATUS_ACTIVE)
     dateCreated = models.DateTimeField(null=True, blank=True)
     dateUpdated = models.DateTimeField(null=True, blank=True)
 
@@ -129,13 +134,21 @@ class Snapshot(models.Model):
     def __unicode__(self):
         return self.title
 
+
 class Image(coreModels.PointFeature):
-    roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
-    pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
+    """
+    A geolocated image.
+    """
+    # degrees, 0 is level, right-hand rotation about x in NED frame
+    roll = models.FloatField(blank=True, null=True)
+    # degrees, 0 is level, right-hand rotation about y in NED frame
+    pitch = models.FloatField(blank=True, null=True)
     # compass degrees, 0 = north, increase clockwise as viewed from above
     yaw = models.FloatField(blank=True, null=True,
                             verbose_name='Heading')
-    yawRef = models.CharField(blank=True, max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF,
+    yawRef = models.CharField(blank=True, max_length=1,
+                              choices=YAW_REF_CHOICES,
+                              default=DEFAULT_YAW_REF,
                               verbose_name='Heading ref.')
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
@@ -159,14 +172,15 @@ class Image(coreModels.PointFeature):
     def getThumbnailPath(self, width):
         return os.path.join(self.getDir(), 'th%d.jpg' % width)
 
-    def calcThumbSize(self, fullWidth, fullHeight, maxOutWidth, maxOutHeight=None):
+    def calcThumbSize(self, fullWidth, fullHeight, maxOutWidth,
+                      maxOutHeight=None):
         if maxOutHeight == None:
             maxOutHeight = (maxOutWidth * 3) // 4
         if float(maxOutWidth) / fullWidth < float(maxOutHeight) / fullHeight:
             thumbWidth = maxOutWidth
-            thumbHeight = int(float(maxOutWidth)/fullWidth * fullHeight)
+            thumbHeight = int(float(maxOutWidth) / fullWidth * fullHeight)
         else:
-            thumbWidth = int(float(maxOutHeight)/fullHeight * fullWidth)
+            thumbWidth = int(float(maxOutHeight) / fullHeight * fullWidth)
             thumbHeight = maxOutHeight
         return (thumbWidth, thumbHeight)
 
@@ -192,10 +206,12 @@ class Image(coreModels.PointFeature):
 
         im = PIL.Image.open(previewOriginalPath)
         fullWidth, fullHeight = im.size
-        thumbWidth, thumbHeight = self.calcThumbSize(fullWidth, fullHeight, maxOutWidth, maxOutHeight)
+        thumbWidth, thumbHeight = \
+            self.calcThumbSize(fullWidth, fullHeight,
+                               maxOutWidth, maxOutHeight)
         try:
             im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
-        except IOError, e:
+        except IOError:
             # fall back to resize
             im.resize((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
         mkdirP(self.getDir())
@@ -208,7 +224,11 @@ class Image(coreModels.PointFeature):
     def galleryThumb(self):
         w0, h0 = settings.GEOCAM_CORE_GALLERY_THUMB_SIZE
         w, h = self.getThumbSize(w0)
-        return mark_safe('<td style="vertical-align: top; width: %dpx; height: %dpx;"><img src="%s" width="%d" height="%d"/></td>' % (w0, h0, self.getThumbnailUrl(w0), w, h))
+        tmpl = """<td style="vertical-align: top; width: %dpx; height: %dpx;">
+                    <img src="%s" width="%d" height="%d"/>
+                  </td>"""
+        return mark_safe(tmpl
+                         % (w0, h0, self.getThumbnailUrl(w0), w, h))
 
     def getRotatedIconDict(self):
         if self.yaw == None:
@@ -236,11 +256,13 @@ class Image(coreModels.PointFeature):
     def getBalloonHtml(self, request):
         result = ['<div>\n']
         result.append(self.getCaptionHeader())
-        
+
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
         if self.widthPixels != 0:
             dw, dh = self.getThumbSize(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])
-            thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0]))
+            thumbnailUrl = (request.build_absolute_uri
+                            (self.getThumbnailUrl
+                             (settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])))
             result.append("""
   <a href="%(viewerUrl)s"
      title="Show high-res view">
@@ -271,8 +293,8 @@ class Image(coreModels.PointFeature):
     def getUploadImageFormVals(self, formData):
         yaw, yawRef = Xmp.normalizeYaw(formData.get('yaw', None),
                                        formData.get('yawRef', None))
-        altitude, altitudeRef = Xmp.normalizeYaw(formData.get('altitude', None),
-                                                 formData.get('altitudeRef', None))
+        Xmp.normalizeYaw(formData.get('altitude', None),
+                         formData.get('altitudeRef', None))
 
         folderName = formData.get('folder', None)
         folder = None
@@ -284,17 +306,20 @@ class Image(coreModels.PointFeature):
             folder = coreModels.Folder.objects.get(id=1)
 
         # FIX figure out what time zone to show
-        tz = pytz.timezone(settings.TIME_ZONE)
+        tzone = pytz.timezone(settings.TIME_ZONE)
         timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
         if timestampStr == None:
             timestampUtc = None
         else:
             timestampLocal = parseUploadTime(timestampStr)
             if timestampLocal.tzinfo == None:
-                timestampLocal = tz.localize(timestampLocal)
-            timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
+                timestampLocal = tzone.localize(timestampLocal)
+            timestampUtc = (timestampLocal
+                            .astimezone(pytz.utc)
+                            .replace(tzinfo=None))
 
-        # special case: remove 'default' tag inserted by older versions of GeoCam Mobile
+        # special case: remove 'default' tag inserted by older versions
+        # of GeoCam Mobile
         tagsOrig = formData.get('tags', None)
         tagsList = [t for t in tagging.utils.parse_tag_input(tagsOrig)
                     if t != 'default']
@@ -321,7 +346,7 @@ class Image(coreModels.PointFeature):
     def makeTagsString(tagsList):
         tagsList = list(set(tagsList))
         tagsList.sort()
-        
+
         # modeled on tagging.utils.edit_string_for_tags
         names = []
         useCommas = False
@@ -338,13 +363,13 @@ class Image(coreModels.PointFeature):
             return ' '.join(names)
 
     def processVals(self, vals):
-        if vals.has_key('tags'):
+        if 'tags' in vals:
             tagsList = tagging.utils.parse_tag_input(vals['tags'])
         else:
             tagsList = []
 
         # find any '#foo' hashtags in notes and add them to the tags field
-        if vals.has_key('notes'):
+        if 'notes' in vals:
             for hashtag in re.finditer('\#([\w0-9_]+)', vals['notes']):
                 tagsList.append(hashtag.group(1))
             vals['tags'] = self.makeTagsString(tagsList)
@@ -360,12 +385,13 @@ class Image(coreModels.PointFeature):
 
         if storePath != None:
             xmpVals = self.getXmpVals(storePath)
-            print >>sys.stderr, 'getImportVals: exif/xmp data:', xmpVals
+            print >> sys.stderr, 'getImportVals: exif/xmp data:', xmpVals
             vals.update(xmpVals)
 
         if uploadImageFormData != None:
             formVals = self.getUploadImageFormVals(uploadImageFormData)
-            print >>sys.stderr, 'getImportVals: UploadImageForm data:', formVals
+            print >> sys.stderr, 'getImportVals: UploadImageForm data:', \
+                  formVals
             vals.update(formVals)
 
         self.processVals(vals)
@@ -385,7 +411,7 @@ class Image(coreModels.PointFeature):
   <Style>
     <IconStyle><Icon></Icon></IconStyle>
     <BalloonStyle>
-      <displayMode>hide</displayMode><!-- suppress confusing description balloon -->
+      <displayMode>hide</displayMode><!-- no balloon -->
     </BalloonStyle>
   </Style>
   <Camera>
@@ -397,7 +423,7 @@ class Image(coreModels.PointFeature):
     <roll>{{ self.cameraRotation.rollDegrees }}</roll>
   </Camera>
   <Icon>
-    <href>{{ self.hrefBase }}s/photos/{{ self.rollName }}/{{ self.imageFile }}</href>
+    <href>...</href>
   </Icon>
   <Point>
     <coordinates>{{ billboardLonLatAlt.commaString }}</coordinates>
@@ -431,9 +457,12 @@ class Image(coreModels.PointFeature):
         if self.timestamp == None:
             return '(unknown)'
         else:
-            tz = self.getCaptionTimeZone()
+            tzone = self.getCaptionTimeZone()
             tzName = settings.DEFAULT_TIME_ZONE['name']
-            localizedDt = pytz.utc.localize(self.timestamp).astimezone(tz).replace(tzinfo=None)
+            localizedDt = (pytz.utc
+                           .localize(self.timestamp)
+                           .astimezone(tzone)
+                           .replace(tzinfo=None))
             return '%s %s' % (str(localizedDt), tzName)
 
     def getCaptionFieldLatLon(self):
@@ -449,12 +478,12 @@ class Image(coreModels.PointFeature):
         else:
             dirIndex = int(round(self.yaw / 22.5)) % 16
             cardinal = CARDINAL_DIRECTIONS[dirIndex]
-            
+
             if self.yawRef == None:
                 yawStr = 'unknown'
             else:
                 yawStr = YAW_REF_LOOKUP[self.yawRef]
-                
+
             val = ('%s %d&deg; (ref. %s)'
                    % (cardinal, round(self.yaw), yawStr))
         return ['heading', val]
@@ -477,12 +506,14 @@ class Image(coreModels.PointFeature):
         if self.timestamp == None:
             tsVal = '(unknown)'
         else:
-            tsVal = TimeUtil.getTimeShort(self.timestamp, tz=self.getCaptionTimeZone())
+            tsVal = (TimeUtil
+                     .getTimeShort(self.timestamp,
+                                   tz=self.getCaptionTimeZone()))
         if self.name == None:
             nameVal = '(untitled)'
         else:
             nameVal = self.name
-        tsColor = '#000077' # dark blue
+        tsColor = '#000077'  # dark blue
         return ("""
 <div style="padding-top: 5px; padding-bottom: 5px;">
   <span class="geocamCaption_name">%(nameVal)s</span>
@@ -495,19 +526,30 @@ class Image(coreModels.PointFeature):
         out.write('<table>')
         for field in self.getCaptionFields():
             label, val = self.getCaptionField(field)
-            out.write('<tr><td class="geocamCaption_fieldLabel">%s</td><td>%s</td></tr>' % (label, val))
+            out.write(('<tr>'
+                       '<td class="geocamCaption_fieldLabel">%s</td>'
+                       '<td>%s</td>'
+                       '</tr>')
+                      % (label, val))
         out.write('</table>')
         return out.getvalue()
+
 
 class Photo(Image):
     objects = FinalModelManager(parentModel=Image)
 
+
 class GoogleEarthSession(models.Model):
-    """Session state for a Google Earth client that is requesting periodic updates."""
+    """
+    Session state for a Google Earth client that is requesting periodic
+    updates.
+    """
     sessionId = models.CharField(max_length=256)
-    query = models.CharField(max_length=128, default='', help_text="User's query when session was initiated")
+    query = models.CharField(max_length=128, default='',
+                             help_text="User's query when session was initiated")
     utime = models.DateTimeField(help_text="The last time we sent an update to the client.")
-    extras = models.TextField(max_length=1024, default='{}', help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
+    extras = models.TextField(max_length=1024, default='{}',
+                              help_text="A place for extra fields if we can't change the schema")
 
     @staticmethod
     def getSessionId(searchQuery=None):
@@ -515,11 +557,12 @@ class GoogleEarthSession(models.Model):
         if searchQuery:
             MAX_SEARCH_LEN = 200
             if len(searchQuery) > MAX_SEARCH_LEN:
-                raise Exception('due to limitations of current db schema, search queries are limited to %d chars' % MAX_SEARCH_LEN)
+                raise Exception('due to limitations of current db schema, search queries are limited to %d chars'
+                                % MAX_SEARCH_LEN)
             return '%s-%s' % (randomPart, searchQuery)
         else:
             return randomPart
-        
+
     def getSearchQuery(self):
         if '-' in self.sessionId:
             return self.sessionId.split('-', 1)[1]
@@ -528,6 +571,7 @@ class GoogleEarthSession(models.Model):
 
     def __unicode__(self):
         return u'<Session %s (%s)>' % (self.sessionId, self.utime)
+
     class Meta:
         verbose_name = 'Google Earth session'
         ordering = ['utime']

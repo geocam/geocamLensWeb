@@ -5,14 +5,15 @@
 # __END_LICENSE__
 
 import re
-import sys
 
 from django.db.models import Q
 
 from geocamUtil import TimeUtil
 
+
 class BadQuery(Exception):
     pass
+
 
 class SearchAbstract:
     # override these settings in derived classes
@@ -35,7 +36,7 @@ class SearchAbstract:
         except ValueError, msg:
             raise BadQuery("Oops, %s in clause '%s' of search '%s'"
                            % (msg, clause, query))
-        return Q(**{self.timeField+'__lte': utcDT})
+        return Q(**{self.timeField + '__lte': utcDT})
 
     def filterFieldAfter(self, query, clause, field, term, negated):
         if negated:
@@ -47,7 +48,7 @@ class SearchAbstract:
         except ValueError, msg:
             raise BadQuery("Oops, %s in clause '%s' of search '%s'"
                            % (msg, clause, query))
-        return Q(**{self.timeField+'__gte': utcDT})
+        return Q(**{self.timeField + '__gte': utcDT})
 
     def filterFieldDefault(self, query, clause, field, term, negated):
         if field == None:
@@ -66,7 +67,7 @@ class SearchAbstract:
         qfilter = Q()
         for f in fields:
             dbField = self.flookup[f]
-            qAdd = Q(**{dbField+'__icontains': term})
+            qAdd = Q(**{dbField + '__icontains': term})
             if negated:
                 qfilter = qfilter & ~qAdd
             else:
@@ -75,12 +76,12 @@ class SearchAbstract:
 
     def filterField(self, query, clause, field, term, negated):
         if field:
-            filterFuncName = 'filterField'+field.capitalize()
+            filterFuncName = 'filterField' + field.capitalize()
             if hasattr(self, filterFuncName):
                 filterFunc = getattr(self, filterFuncName)
                 return filterFunc(query, clause, field, term, negated)
         return self.filterFieldDefault(query, clause, field, term, negated)
-    
+
     def filterClause(self, query, clause):
         if clause.startswith('-'):
             negated = True
@@ -132,7 +133,7 @@ class SearchAbstract:
                 termFilter = termFilter & clauseFilter
             queryFilter = queryFilter | termFilter
         return queryFilter
-    
+
     def searchFeatures0(self, startSet, query):
         queryTree = self.parseQuery(query)
         queryFilter = self.treeToFilter(query, queryTree)
@@ -142,4 +143,4 @@ class SearchAbstract:
         result = startSet
         if query:
             result = self.searchFeatures0(result, query)
-        return result.distinct().order_by('-'+self.timeField)
+        return result.distinct().order_by('-' + self.timeField)

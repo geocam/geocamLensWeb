@@ -14,6 +14,7 @@ import PIL.Image
 
 from geocamUtil import MimeMultipartFormData
 
+
 class UploadClient:
     def __init__(self, url, userName='root', password=''):
         self.url = url
@@ -44,7 +45,7 @@ class UploadClient:
         if downsampleFactor != 1:
             im = PIL.Image.open(imageName)
             w, h = im.size
-            thRes = (w//downsampleFactor, h//downsampleFactor)
+            thRes = (w // downsampleFactor, h // downsampleFactor)
             im.thumbnail(thRes, PIL.Image.ANTIALIAS)
             fd, tmpName = tempfile.mkstemp('uploadImageThumb.jpg')
             os.close(fd)
@@ -56,7 +57,7 @@ class UploadClient:
             imageData = file(imageName, 'r').read()
 
         #cookieProcessor = urllib2.HTTPCookieProcessor()
-        opener = urllib2.build_opener() # (cookieProcessor)
+        opener = urllib2.build_opener()  # (cookieProcessor)
         headers = {'User-Agent': 'GeoCam Upload Tester'}
 
         multipart = MimeMultipartFormData.MimeMultipartFormData()
@@ -83,7 +84,7 @@ class UploadClient:
             attributes = dict(trackUploadProtocolVersion='1.0')
 
         #cookieProcessor = urllib2.HTTPCookieProcessor()
-        opener = urllib2.build_opener() # (cookieProcessor)
+        opener = urllib2.build_opener()  # (cookieProcessor)
         headers = {'User-Agent': 'GeoCam Upload Tester'}
         url = '%s/track' % self.url
 

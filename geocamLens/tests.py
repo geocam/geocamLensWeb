@@ -11,9 +11,10 @@ unittest). These will both pass when you run "manage.py test".
 Replace these with more appropriate tests for your application.
 """
 
+from xml.dom import minidom
 from django.test import TestCase
 from django.test.client import Client
-from xml.dom import minidom
+
 
 class ValidKmlTest(TestCase):
     def testStartSessionValid(self):

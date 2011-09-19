@@ -6,28 +6,19 @@
 
 # Create your views here.
 
-import math
 import sys
-import datetime
 import os
-import shutil
-import urllib
 import tempfile
-import shutil
 
 import PIL.Image
-import tagging
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
-from django.utils.safestring import mark_safe
 from django.template import RequestContext
 from django.contrib.auth.models import User
 
 from geocamUtil import anyjson as json
 from geocamUtil.icons import cacheIcons
-from geocamUtil.middleware.SecurityMiddleware import requestIsSecure
 from geocamUtil.models.UuidField import makeUuid
-from geocamUtil.FileUtil import mkdirP
 
 from geocamLens.models import Image
 from geocamLens.forms import UploadImageForm, EditImageForm
@@ -37,6 +28,7 @@ from geocamLens import settings
 
 cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamLens', 'icons', 'map'))
 cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamLens', 'icons', 'mapr'))
+
 
 class ViewLensAbstract(ViewKml):
     # override in derived classes
@@ -54,9 +46,9 @@ class ViewLensAbstract(ViewKml):
 
     def dumps(self, obj):
         if 1:
-            return json.dumps(obj, indent=4, sort_keys=True) # pretty print for debugging
+            return json.dumps(obj, indent=4, sort_keys=True)  # pretty print for debugging
         else:
-            return json.dumps(obj, separators=(',',':')) # compact
+            return json.dumps(obj, separators=(',', ':'))  # compact
 
     def getFeaturesGeoJson(self, request):
         try:
@@ -64,7 +56,7 @@ class ViewLensAbstract(ViewKml):
             errorMessage = None
         except BadQuery, e:
             errorMessage = e.message
-        
+
         numFeaturesParam = request.GET.get('n')
         if numFeaturesParam:
             if numFeaturesParam == 'all':
@@ -116,9 +108,9 @@ class ViewLensAbstract(ViewKml):
                            for f in exportedVars))
         return json.dumps(exportDict)
 
-    def editImage0(self, request, id, template):
-        img = self.defaultImageModel.objects.get(id=id)
-        ajax = request.POST.has_key('ajax')
+    def editImage0(self, request, imgId, template):
+        img = self.defaultImageModel.objects.get(id=imgId)
+        ajax = 'ajax' in request.POST
         if request.method == 'POST':
             form = EditImageForm(request.POST, instance=img)
             if form.is_valid():
@@ -140,13 +132,13 @@ class ViewLensAbstract(ViewKml):
                 (template,
                  dict(img=img,
                       form=form),
-                 context_instance = RequestContext(request)))
-        
-    def editImage(self, request, id):
-        return self.editImage0(request, id, 'editImage.html')
+                 context_instance=RequestContext(request)))
 
-    def editImageWrapper(self, request, id):
-        return self.editImage0(request, id, 'editImageWrapper.html')
+    def editImage(self, request, imgId):
+        return self.editImage0(request, imgId, 'editImage.html')
+
+    def editImageWrapper(self, request, imgId):
+        return self.editImage0(request, imgId, 'editImageWrapper.html')
 
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)
@@ -185,7 +177,7 @@ class ViewLensAbstract(ViewKml):
                     newVersion = img.version + 1
                 else:
                     # create Image db record
-                    img = self.defaultImageModel()
+                    img = self.defaultImageModel()  # pylint: disable-msg=E1102
                     img.readImportVals(storePath=tempStorePath,
                                        uploadImageFormData=form.cleaned_data)
 
@@ -196,7 +188,7 @@ class ViewLensAbstract(ViewKml):
                 im = PIL.Image.open(tempStorePath, 'r')
                 newRes = im.size
                 del im
-                    
+
                 if sameUuid:
                     oldRes = (img.widthPixels, img.heightPixels)
                     if newRes > oldRes:
@@ -238,7 +230,7 @@ class ViewLensAbstract(ViewKml):
                 userAgent = request.META.get('HTTP_USER_AGENT', '')
                 # swfupload user can't see errors in form response, best return an error code
                 if 'Flash' in userAgent:
-                    return http.HttpResponseBadRequest('<h1>400 Bad Request</h1>')
+                    return HttpResponseBadRequest('<h1>400 Bad Request</h1>')
         else:
             form = UploadImageForm()
             #print 'form:', form
@@ -250,8 +242,8 @@ class ViewLensAbstract(ViewKml):
         print >>sys.stderr, 'upload image end'
         return resp
 
-    def viewPhoto(self, request, id):
+    def viewPhoto(self, request, imgId):
         # this is not very efficient
-        img = Image.objects.get(id=id)
+        img = Image.objects.get(id=imgId)
         imgData = file(img.getImagePath(), 'r').read()
         return HttpResponse(imgData, mimetype='image/jpeg')

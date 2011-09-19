@@ -8,11 +8,12 @@ from geocamCore.models import PointFeature
 
 from geocamLens.SearchAbstract import SearchAbstract
 
+
 class SearchSimple(SearchAbstract):
     def getAllFeatures(self):
         return PointFeature.objects.filter(processed=True)
 
     fields = ('name', 'user', 'notes', 'tags', 'uuid')
-    timeField = 'timestamp' # FIX: handle features with non-zero time extent
+    timeField = 'timestamp'  # FIX: handle features with non-zero time extent
     # pairs (user-facing-field-name, django-field-name)
     fieldAliases = (('user', 'author__username'),)

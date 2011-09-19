@@ -6,7 +6,7 @@
 
 from django.contrib import admin
 
-from geocamLens.models import *
+from geocamLens.models import *  # pylint: disable-msg=W0401
 
 admin.site.register(Snapshot)
 admin.site.register(GoogleEarthSession)

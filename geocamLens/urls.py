@@ -4,7 +4,7 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns
 
 from geocamUtil.FileUtil import importModuleByName
 
@@ -23,13 +23,13 @@ urlpatterns = patterns(
      {'challenge': 'digest',
       'readOnly': True},
      'geocamLens_kmlGetSessionResponse'),
-    
+
     # features
     (r'^features.json', views.featuresJson, {'readOnly': True}),
     (r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
     (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
 
-    (r'^photo/(?P<id>[^/]+)/(?:[^/]+)?$', views.viewPhoto,
+    (r'^photo/(?P<imgId>[^/]+)/(?:[^/]+)?$', views.viewPhoto,
      {'readOnly': True}),
 
     (r'^upload/$', views.uploadImageAuth),
@@ -37,8 +37,8 @@ urlpatterns = patterns(
     (r'^upload-m/$', views.uploadImageAuth,
      {'challenge': 'basic'}),
 
-    (r'^edit/photo/(?P<id>[^/]+)/$', views.editImageWrapper),
-    (r'^editWidget/photo/(?P<id>[^/]+)/$', views.editImage),
+    (r'^edit/photo/(?P<imgId>[^/]+)/$', views.editImageWrapper),
+    (r'^editWidget/photo/(?P<imgId>[^/]+)/$', views.editImage),
 
     # legacy URLs, compatible with the old version of GeoCam
     # Mobile *if* user authentication is off (not recommended!).

@@ -18,9 +18,11 @@ from geocamLens import settings
 
 CACHED_CSS = None
 
+
 class BogusRequest:
     def build_absolute_uri(self, text):
         return text
+
 
 class ViewKml(object):
     def kmlGetStartSessionKml(self, request, sessionId):
@@ -106,14 +108,14 @@ class ViewKml(object):
     </Link>
   </NetworkLink>
 """ % dict(updateUrl=updateUrl))
-            
+
         result += ("""
   %(allFeaturesFolder)s
 
 </Document>
 """ % dict(allFeaturesFolder=allFeaturesFolder))
         return result
-    
+
     def kmlGetUpdateKml(self, request, sessionId):
         # FIX: implement me -- can use old version of geocam for reference
         return ''
