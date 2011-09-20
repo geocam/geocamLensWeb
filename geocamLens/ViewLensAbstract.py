@@ -177,7 +177,7 @@ class ViewLensAbstract(ViewKml):
                     newVersion = img.version + 1
                 else:
                     # create Image db record
-                    img = self.defaultImageModel()  # pylint: disable-msg=E1102
+                    img = self.defaultImageModel()  # pylint: disable=E1102
                     img.readImportVals(storePath=tempStorePath,
                                        uploadImageFormData=form.cleaned_data)
 
