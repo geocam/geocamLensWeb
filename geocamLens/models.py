@@ -305,7 +305,6 @@ class Image(coreModels.PointFeature):
         if folder == None:
             folder = coreModels.Folder.objects.get(id=1)
 
-        # FIX figure out what time zone to show
         tzone = pytz.timezone(settings.TIME_ZONE)
         timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
         if timestampStr == None:
@@ -404,7 +403,7 @@ class Image(coreModels.PointFeature):
             setattr(self, k, v)
 
     def getKmlAdvanced(self):
-        # FIX: fix this up and rename it to getKml()
+        # TODO: fix this up and rename it to getKml()
         return ("""
 <PhotoOverlay %(uuid)s>
   <name>%(requestId)s</name>

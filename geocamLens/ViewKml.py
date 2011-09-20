@@ -56,7 +56,7 @@ class ViewKml(object):
         allFeatures = self.search.getAllFeatures()
         features = self.search.searchFeatures(allFeatures, searchQuery)
         if 0:
-            # FIX: update models so this filtering statement can work
+            # TODO: update models so this filtering statement can work
             features = features.filter(mtime__lte=newUtime,
                                        deleted=False)
         featuresKml = '\n'.join([f.getKml(request) for f in features])
@@ -118,7 +118,7 @@ class ViewKml(object):
         return result
 
     def kmlGetUpdateKml(self, request, sessionId):
-        # FIX: implement me -- can use old version of geocam for reference
+        # TODO: implement me -- can use old version of geocam for reference
         return ''
 
     def kmlGetSessionResponse(self, request, quotedId, method):

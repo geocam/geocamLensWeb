@@ -114,7 +114,6 @@ class ViewLensAbstract(ViewKml):
         if request.method == 'POST':
             form = EditImageForm(request.POST, instance=img)
             if form.is_valid():
-                # FIX: update map, etc!
                 updatedObject = form.save()
                 if ajax:
                     return HttpResponse(json.dumps({'result': updatedObject.getGeoJson()}),
