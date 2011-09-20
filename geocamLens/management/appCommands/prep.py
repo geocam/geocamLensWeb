@@ -30,7 +30,7 @@ class Command(NoArgsCommand):
         svgOutput = '%s/build/media/geocamLens/icons/map/' % appDir
         if settings.GEOCAM_LENS_RENDER_SVG_ICONS:
             svgGlob = '%s/media_src/icons/*.svg' % appDir
-            logging.debug('svgIcons %s %s' % (svgGlob, svgOutput))
+            logging.debug('svgIcons %s %s', svgGlob, svgOutput)
             for imPath in glob(svgGlob):
                 svg.buildIcon(builder, imPath, outputDir=svgOutput)
 
@@ -41,7 +41,7 @@ class Command(NoArgsCommand):
 
         # make highlighted versions of icons
         dstGlob = svgOutput + '*.png'
-        logging.debug('highlightIcons %s' % dstGlob)
+        logging.debug('highlightIcons %s', dstGlob)
         for dst in glob(dstGlob):
             if 'Highlighted' in dst:
                 continue
@@ -51,6 +51,6 @@ class Command(NoArgsCommand):
         # rotate pngs
         rotGlob = '%s/build/media/geocamLens/icons/map/*Point*.png' % appDir
         rotOutput = '%s/build/media/geocamLens/icons/mapr' % appDir
-        logging.debug('rotateIcons %s %s' % (rotGlob, rotOutput))
+        logging.debug('rotateIcons %s %s', rotGlob, rotOutput)
         for imPath in glob(rotGlob):
             rotate.buildAllDirections(builder, imPath, outputDir=rotOutput)

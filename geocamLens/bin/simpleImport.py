@@ -10,7 +10,6 @@ will not be used in production."""
 
 import sys
 import os
-import datetime
 import glob
 import csv
 import re
@@ -18,15 +17,10 @@ import uuid
 import getpass
 import stat
 
-import PIL
-import pytz
-import tagging
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
-from geocamUtil import TimeUtil
-from geocamUtil.FileUtil import mkdirP
-from geocamCore.models import Feature, Folder
+from geocamCore.models import Feature
 
 from geocamLens.UploadClient import UploadClient
 from geocamLens.models import Photo
@@ -69,22 +63,14 @@ def getBogusUuid(name, userName, timeStr):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, userName, timeStr)))
 
 
-def importDir(opts, dir, uploadClient):
-    dir = os.path.realpath(dir)
+def importDir(opts, d, uploadClient):
+    d = os.path.realpath(d)
 
-    tzFile = '%s/timezone.txt' % dir
-    if os.path.exists(tzFile):
-        timeZone = file(tzFile, 'r').read().strip()
-    else:
-        timeZone = 'US/Pacific'  # default
-
-    folderName = os.path.basename(dir)
-    if not opts.upload:
-        folder, created = Folder.objects.get_or_create(name=folderName)
+    folderName = os.path.basename(d)
 
     photosToUpload = []
 
-    csvFiles = glob.glob('%s/*.csv' % dir)
+    csvFiles = glob.glob('%s/*.csv' % d)
     if csvFiles:
         csvName = csvFiles[0]
         reader = csv.reader(file(csvName, 'r'))
@@ -107,7 +93,7 @@ def importDir(opts, dir, uploadClient):
             lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
             if lat == -999:
                 lat, lon = None, None
-            imagePath = os.path.join(dir, 'photos', name)
+            imagePath = os.path.join(d, 'photos', name)
 
             # make up a consistent bogus uuid field so we can test incremental upload.
             # real clients should always make a stronger uuid to avoid collisions!
@@ -135,10 +121,10 @@ def importDir(opts, dir, uploadClient):
     else:
         images = []
         for ext in ('.jpg', '.jpeg', '.JPG'):
-            images += glob.glob('%s/*%s' % (dir, ext))
+            images += glob.glob('%s/*%s' % (d, ext))
         if images:
             if opts.match:
-                print >>sys.stderr, "warning: can't import dir %s -- can't match tags unless we have a .csv" % dir
+                print >> sys.stderr, "warning: can't import dir %s -- can't match tags unless we have a .csv" % d
                 images = []
             if opts.number != 0:
                 images = images[:opts.number]
@@ -155,7 +141,7 @@ def importDir(opts, dir, uploadClient):
                 photosToUpload.append(dict(imagePath=img,
                                            attributes=attributes))
         else:
-            print >>sys.stderr, "warning: can't import dir %s -- no *.csv, no images" % dir
+            print >> sys.stderr, "warning: can't import dir %s -- no *.csv, no images" % d
 
     for p in photosToUpload:
         if uploadClient:
@@ -186,8 +172,8 @@ def doit(opts, importDirs):
         for f in features:
             f.deleteFiles()
             f.delete()
-    for dir in importDirs:
-        importDir(opts, dir, uploadClient)
+    for d in importDirs:
+        importDir(opts, d, uploadClient)
 
 
 def main():
@@ -222,7 +208,7 @@ def main():
                       help='Downsample images by specified factor before upload.  Implies -u.')
     opts, args = parser.parse_args()
     if not args:
-        print >>sys.stderr, 'warning: no import dirs specified, not importing anything'
+        print >> sys.stderr, 'warning: no import dirs specified, not importing anything'
     importDirs = args
     doit(opts, importDirs)
 

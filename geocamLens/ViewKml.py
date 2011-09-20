@@ -11,7 +11,6 @@ import sys
 from django.core import urlresolvers
 
 from geocamUtil import KmlUtil
-from geocamCore.models import Feature
 
 from geocamLens.models import GoogleEarthSession
 from geocamLens import settings
@@ -25,6 +24,8 @@ class BogusRequest:
 
 
 class ViewKml(object):
+    search = None  # override in derived classes
+
     def kmlGetStartSessionKml(self, request, sessionId):
         urlPath = urlresolvers.reverse('geocamLens_kmlGetSessionResponse',
                                        args=[sessionId, 'initial'])
@@ -48,7 +49,7 @@ class ViewKml(object):
     def kmlStartSession(self, request):
         searchQuery = request.REQUEST.get('q', None)
         sessionId = GoogleEarthSession.getSessionId(searchQuery)
-        print >>sys.stderr, "ViewKml: started session %s" % sessionId
+        print >> sys.stderr, "ViewKml: started session %s" % sessionId
         return KmlUtil.wrapKmlDjango(self.kmlGetStartSessionKml(request, sessionId))
 
     def kmlGetAllFeaturesFolder(self, request, searchQuery, newUtime):
@@ -68,8 +69,8 @@ class ViewKml(object):
 
     def kmlGetInitialKml(self, request, sessionId):
         newUtime = datetime.datetime.now()
-        session, created = GoogleEarthSession.objects.get_or_create(sessionId=sessionId,
-                                                                    defaults=dict(utime=newUtime))
+        session, _created = GoogleEarthSession.objects.get_or_create(sessionId=sessionId,
+                                                                     defaults=dict(utime=newUtime))
         session.utime = newUtime
         session.save()
 

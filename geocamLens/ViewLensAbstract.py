@@ -146,9 +146,9 @@ class ViewLensAbstract(ViewKml):
     def uploadImage(self, request, userName):
         author = User.objects.get(username=userName)
         if request.method == 'POST':
-            print >>sys.stderr, 'upload image start'
+            print >> sys.stderr, 'upload image start'
             form = UploadImageForm(request.POST, request.FILES)
-            print >>sys.stderr, 'FILES:', request.FILES.keys()
+            print >> sys.stderr, 'FILES:', request.FILES.keys()
             if form.is_valid():
                 incoming = request.FILES['photo']
 
@@ -159,7 +159,7 @@ class ViewLensAbstract(ViewKml):
                 for chunk in incoming.chunks():
                     storeFile.write(chunk)
                 storeFile.close()
-                print >>sys.stderr, 'upload: saved image data to temp file:', tempStorePath
+                print >> sys.stderr, 'upload: saved image data to temp file:', tempStorePath
 
                 # create image db record
                 uuid = form.cleaned_data.setdefault('uuid', makeUuid())
@@ -173,7 +173,7 @@ class ViewLensAbstract(ViewKml):
                     # the next higher resolution level in an incremental
                     # upload.
                     img = uuidMatches.get()
-                    print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
+                    print >> sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
                     newVersion = img.version + 1
                 else:
                     # create Image db record
@@ -192,11 +192,11 @@ class ViewLensAbstract(ViewKml):
                 if sameUuid:
                     oldRes = (img.widthPixels, img.heightPixels)
                     if newRes > oldRes:
-                        print >>sys.stderr, 'upload: resolution increased from %d to %d' % (oldRes[0], newRes[0])
+                        print >> sys.stderr, 'upload: resolution increased from %d to %d' % (oldRes[0], newRes[0])
                         img.widthPixels, img.heightPixels = newRes
                         img.processed = False
                     else:
-                        print >>sys.stderr, 'upload: ignoring dupe, but telling the client it was received so it stops trying'
+                        print >> sys.stderr, 'upload: ignoring dupe, but telling the client it was received so it stops trying'
                 else:
                     img.widthPixels, img.heightPixels = newRes
 
@@ -214,19 +214,19 @@ class ViewLensAbstract(ViewKml):
                 # after import by process(), can delete redundant temp copy
                 os.unlink(tempStorePath)
 
-                print >>sys.stderr, 'upload image end'
+                print >> sys.stderr, 'upload image end'
 
                 # swfupload requires non-empty response text.
                 # also added a text pattern (in html comment) for clients to check against to make sure
                 # photo has actually arrived in share.  we also put a matching line in the error log so we
                 # never again run into the issue that the phone thinks it successfully uploaded but there
                 # is no record of the http post on the server.
-                print >>sys.stderr, 'GEOCAM_SHARE_POSTED %s' % img.name
+                print >> sys.stderr, 'GEOCAM_SHARE_POSTED %s' % img.name
                 return HttpResponse('file posted <!--\nGEOCAM_SHARE_POSTED %s\n-->' % img.name)
 
             else:
-                print >>sys.stderr, "form is invalid"
-                print >>sys.stderr, "form errors: ", form._errors
+                print >> sys.stderr, "form is invalid"
+                print >> sys.stderr, "form errors: ", form._errors
                 userAgent = request.META.get('HTTP_USER_AGENT', '')
                 # swfupload user can't see errors in form response, best return an error code
                 if 'Flash' in userAgent:
@@ -239,7 +239,7 @@ class ViewLensAbstract(ViewKml):
                                        author=author,
                                        ),
                                   context_instance=RequestContext(request))
-        print >>sys.stderr, 'upload image end'
+        print >> sys.stderr, 'upload image end'
         return resp
 
     def viewPhoto(self, request, imgId):
