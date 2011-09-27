@@ -33,6 +33,7 @@ from geocamUtil.TimeUtil import parseUploadTime
 from geocamUtil.FileUtil import mkdirP
 from geocamUtil import TimeUtil
 import geocamCore.models as coreModels
+from geocamFolder.models import Folder
 
 from geocamLens import settings
 
@@ -299,11 +300,11 @@ class Image(coreModels.PointFeature):
         folderName = formData.get('folder', None)
         folder = None
         if folderName:
-            folderMatches = coreModels.Folder.objects.filter(name=folderName)
+            folderMatches = Folder.objects.filter(name=folderName)
             if folderMatches:
                 folder = folderMatches[0]
         if folder == None:
-            folder = coreModels.Folder.objects.get(id=1)
+            folder = Folder.objects.get(id=1)
 
         tzone = pytz.timezone(settings.TIME_ZONE)
         timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
@@ -334,7 +335,7 @@ class Image(coreModels.PointFeature):
                          altitude=formData.get('altitude', None),
                          altitudeRef=formData.get('altitudeRef', None),
                          timestamp=timestampUtc,
-                         folder=folder,
+                         _folders=[folder],
                          yaw=yaw,
                          yawRef=yawRef)
         formVals = dict([(k, v) for k, v in formVals0.iteritems()

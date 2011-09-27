@@ -21,6 +21,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
 from geocamCore.models import Feature
+from geocamFolder.models import Folder
 
 from geocamLens.UploadClient import UploadClient
 from geocamLens.models import Photo
@@ -54,6 +55,13 @@ def importImageDirect(imagePath, attributes):
         photo = Photo()
         photo.readImportVals(storePath=imagePath, uploadImageFormData=attributes)
         photo.save()
+
+        # must defer saving m2m fields until after base object is in db
+        for fieldName in ('folders',):
+            val = getattr(photo, '_' + fieldName)
+            setattr(photo, fieldName, val)
+            delattr(photo, '_' + fieldName)
+
         photo.process(importFile=imagePath)
         photo.save()
         print 'processed', unicode(photo)
@@ -67,6 +75,7 @@ def importDir(opts, d, uploadClient):
     d = os.path.realpath(d)
 
     folderName = os.path.basename(d)
+    Folder.objects.get_or_create(name=folderName)
 
     photosToUpload = []
 
