@@ -23,6 +23,9 @@ urlpatterns = patterns(
      {'challenge': 'digest',
       'readOnly': True},
      'geocamLens_kmlGetSessionResponse'),
+    (r'^feed\.kml$', views.kmlFeed,
+     {'readOnly': True},
+     'geocamLens_kml'),
 
     # features
     (r'^features.json', views.featuresJson, {'readOnly': True}),

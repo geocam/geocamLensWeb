@@ -52,7 +52,7 @@ class ViewKml(object):
         print >> sys.stderr, "ViewKml: started session %s" % sessionId
         return KmlUtil.wrapKmlDjango(self.kmlGetStartSessionKml(request, sessionId))
 
-    def kmlGetAllFeaturesFolder(self, request, searchQuery, newUtime):
+    def kmlGetAllFeaturesFolder(self, request, searchQuery, newUtime=None):
         allFeatures = self.search.getAllFeatures()
         features = self.search.searchFeatures(allFeatures, searchQuery)
         if 0:
@@ -67,16 +67,19 @@ class ViewKml(object):
 </Folder>
 """ % featuresKml)
 
-    def kmlGetInitialKml(self, request, sessionId):
-        newUtime = datetime.datetime.now()
-        session, _created = GoogleEarthSession.objects.get_or_create(sessionId=sessionId,
-                                                                     defaults=dict(utime=newUtime))
-        session.utime = newUtime
-        session.save()
+    def kmlGetInitialKml(self, request, sessionId=None):
+        if sessionId:
+            newUtime = datetime.datetime.now()
+            session, _created = GoogleEarthSession.objects.get_or_create(sessionId=sessionId,
+                                                                         defaults=dict(utime=newUtime))
+            session.utime = newUtime
+            session.save()
+            query = session.getSearchQuery()
+        else:
+            newUtime = None
+            query = ''
 
-        allFeaturesFolder = self.kmlGetAllFeaturesFolder(request,
-                                                         session.getSearchQuery(),
-                                                         newUtime)
+        allFeaturesFolder = self.kmlGetAllFeaturesFolder(request, query, newUtime)
         global CACHED_CSS
         if not CACHED_CSS:
             cssPath = '%sgeocamCore/css/share.css' % settings.MEDIA_ROOT
@@ -131,3 +134,6 @@ class ViewKml(object):
             return KmlUtil.wrapKmlDjango(self.kmlGetUpdateKml(request, sessionId))
         else:
             raise Exception('method must be "initial" or "update"')
+
+    def kmlFeed(self, request):
+        return KmlUtil.wrapKmlDjango(self.kmlGetInitialKml(request))
