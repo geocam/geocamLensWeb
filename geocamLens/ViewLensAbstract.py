@@ -15,6 +15,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 from geocamUtil import anyjson as json
 from geocamUtil.icons import cacheIcons
@@ -139,6 +140,7 @@ class ViewLensAbstract(ViewKml):
     def editImageWrapper(self, request, imgId):
         return self.editImage0(request, imgId, 'editImageWrapper.html')
 
+    @csrf_exempt
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)
 
