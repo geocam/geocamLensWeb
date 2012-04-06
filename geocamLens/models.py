@@ -224,7 +224,7 @@ class Image(coreModels.PointFeature):
         self.makeThumbnail0(previewOriginalPath, thumbSize)
 
     def galleryThumb(self):
-        w0, h0 = settings.GEOCAM_CORE_GALLERY_THUMB_SIZE
+        w0, h0 = settings.GEOCAM_AWARE_GALLERY_THUMB_SIZE
         w, h = self.getThumbSize(w0)
         tmpl = """<td style="vertical-align: top; width: %dpx; height: %dpx;">
                     <img src="%s" width="%d" height="%d"/>
@@ -248,8 +248,8 @@ class Image(coreModels.PointFeature):
             if not os.path.exists(self.getDir()):
                 mkdirP(self.getDir())
             shutil.copyfile(importFile, self.getImagePath())
-        self.makeThumbnail(settings.GEOCAM_CORE_GALLERY_THUMB_SIZE)
-        self.makeThumbnail(settings.GEOCAM_CORE_DESC_THUMB_SIZE)
+        self.makeThumbnail(settings.GEOCAM_AWARE_GALLERY_THUMB_SIZE)
+        self.makeThumbnail(settings.GEOCAM_AWARE_DESC_THUMB_SIZE)
         # remember to call save() after process()
 
     def getCaptionHtml(self):
@@ -261,10 +261,10 @@ class Image(coreModels.PointFeature):
 
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
         if self.widthPixels != 0:
-            dw, dh = self.getThumbSize(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])
+            dw, dh = self.getThumbSize(settings.GEOCAM_AWARE_DESC_THUMB_SIZE[0])
             thumbnailUrl = (request.build_absolute_uri
                             (self.getThumbnailUrl
-                             (settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])))
+                             (settings.GEOCAM_AWARE_DESC_THUMB_SIZE[0])))
             result.append("""
   <a href="%(viewerUrl)s"
      title="Show high-res view">
