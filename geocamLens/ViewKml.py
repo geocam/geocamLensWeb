@@ -36,13 +36,13 @@ class ViewKml(object):
             flyToView = ''
         return ("""
 <NetworkLink>
-  <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
+  <name>%(SITE_TITLE)s</name>
   <Link>
     <href>%(absUrl)s</href>
   </Link>
   %(flyToView)s
 </NetworkLink>
-""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
+""" % dict(SITE_TITLE=settings.SITE_TITLE,
            absUrl=absUrl,
            flyToView=flyToView))
 
@@ -86,7 +86,7 @@ class ViewKml(object):
             CACHED_CSS = file(cssPath, 'r').read()
         result = ("""
 <Document id="allFeatures">
-  <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
+  <name>%(SITE_TITLE)s</name>
   <Style id="shareCss">
     <BalloonStyle>
       <text><![CDATA[
@@ -97,7 +97,7 @@ class ViewKml(object):
       ]]></text>
     </BalloonStyle>
   </Style>
-""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
+""" % dict(SITE_TITLE=settings.SITE_TITLE,
            CACHED_CSS=CACHED_CSS))
         if 0:
             quotedId = urllib.quote_plus(sessionId)
