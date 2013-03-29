@@ -20,7 +20,7 @@ urlpatterns = patterns(
      {'readOnly': True}, 'geocamLens_kmlStartSession'),
     (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
      # google earth can't handle django challenge
-     {'challenge': 'digest',
+     {'challenge': 'basic',
       'readOnly': True},
      'geocamLens_kmlGetSessionResponse'),
     (r'^feed\.kml$', views.kmlFeed,
