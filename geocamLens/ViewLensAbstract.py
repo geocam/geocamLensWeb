@@ -27,8 +27,8 @@ from geocamLens.ViewKml import ViewKml
 from geocamLens.SearchAbstract import BadQuery
 from geocamLens import settings
 
-cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamLens', 'icons', 'map'))
-cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamLens', 'icons', 'mapr'))
+cacheIcons(os.path.join(settings.STATIC_ROOT, 'geocamLens', 'icons', 'map'))
+cacheIcons(os.path.join(settings.STATIC_ROOT, 'geocamLens', 'icons', 'mapr'))
 
 
 class ViewLensAbstract(ViewKml):
