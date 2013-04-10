@@ -95,6 +95,7 @@ class ViewLensAbstract(ViewKml):
 
     def getExportSettings(self):
         exportedVars = ['SCRIPT_NAME',
+                        'STATIC_URL',
                         'MEDIA_URL',
                         'DATA_URL',
                         'GEOCAM_AWARE_GALLERY_PAGE_COLS',
@@ -105,7 +106,7 @@ class ViewLensAbstract(ViewKml):
                         'GEOCAM_AWARE_USE_MARKER_CLUSTERING',
                         'GEOCAM_AWARE_USE_TRACKING',
                         'GEOCAM_AWARE_DEFAULT_MAP_BOUNDS']
-        exportDict = dict(((f, getattr(settings, f))
+        exportDict = dict(((f, getattr(settings, f, None))
                            for f in exportedVars))
         return json.dumps(exportDict)
 
