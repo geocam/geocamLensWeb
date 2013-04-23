@@ -82,7 +82,7 @@ class ViewKml(object):
         allFeaturesFolder = self.kmlGetAllFeaturesFolder(request, query, newUtime)
         global CACHED_CSS
         if not CACHED_CSS:
-            cssPath = '%sgeocamCore/css/share.css' % settings.MEDIA_ROOT
+            cssPath = '%sgeocamCore/css/share.css' % settings.STATIC_ROOT
             CACHED_CSS = file(cssPath, 'r').read()
         result = ("""
 <Document id="allFeatures">

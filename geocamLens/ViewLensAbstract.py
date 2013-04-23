@@ -96,7 +96,6 @@ class ViewLensAbstract(ViewKml):
     def getExportSettings(self):
         exportedVars = ['SCRIPT_NAME',
                         'STATIC_URL',
-                        'MEDIA_URL',
                         'DATA_URL',
                         'GEOCAM_AWARE_GALLERY_PAGE_COLS',
                         'GEOCAM_AWARE_GALLERY_PAGE_ROWS',

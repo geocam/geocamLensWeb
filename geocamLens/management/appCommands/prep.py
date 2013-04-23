@@ -27,7 +27,7 @@ class Command(NoArgsCommand):
         builder = Builder()
 
         # render svg to png
-        svgOutput = '%s/build/media/geocamLens/icons/map/' % appDir
+        svgOutput = '%s/build/static/geocamLens/icons/map/' % appDir
         if settings.GEOCAM_LENS_RENDER_SVG_ICONS:
             svgGlob = '%s/media_src/icons/*.svg' % appDir
             logging.debug('svgIcons %s %s', svgGlob, svgOutput)
@@ -37,7 +37,7 @@ class Command(NoArgsCommand):
         # link static stuff into build/media
         inst = Installer(builder)
         inst.installRecurseGlob('%s/static/*' % appDir,
-                                '%s/build/media' % appDir)
+                                '%s/build/static' % appDir)
 
         # make highlighted versions of icons
         dstGlob = svgOutput + '*.png'
@@ -49,8 +49,8 @@ class Command(NoArgsCommand):
             halo.addHalo(builder, dst, dstHighlighted)
 
         # rotate pngs
-        rotGlob = '%s/build/media/geocamLens/icons/map/*Point*.png' % appDir
-        rotOutput = '%s/build/media/geocamLens/icons/mapr' % appDir
+        rotGlob = '%s/build/static/geocamLens/icons/map/*Point*.png' % appDir
+        rotOutput = '%s/build/static/geocamLens/icons/mapr' % appDir
         logging.debug('rotateIcons %s %s', rotGlob, rotOutput)
         for imPath in glob(rotGlob):
             rotate.buildAllDirections(builder, imPath, outputDir=rotOutput)
