@@ -15,7 +15,7 @@ class BadQuery(Exception):
     pass
 
 
-class SearchAbstract:
+class SearchAbstract(object):
     # override these settings in derived classes
     getAllFeatures = None
     fields = ()
@@ -51,14 +51,14 @@ class SearchAbstract:
         return Q(**{self.timeField + '__gte': utcDT})
 
     def filterFieldDefault(self, query, clause, field, term, negated):
-        if field == None:
+        if field is None:
             fields = self.flookup.keys()
         elif field not in self.flookup:
             raise BadQuery("Oops, can't understand field name '%s' of search '%s'.  Legal field names are: %s."
                            % (field, query, ', '.join(self.flookup.keys())))
         else:
             fields = [field]
-        if not re.search('^[\.\-\_a-zA-Z0-9]*$', term):
+        if not re.search(r'^[\.\-\_a-zA-Z0-9]*$', term):
             raise BadQuery("Oops, can't understand term '%s' in search '%s'.  Terms must contain only letters, numbers, periods, hyphens, and underscores."
                            % (term, query))
         if term == '':
@@ -103,7 +103,7 @@ class SearchAbstract:
                        for term in queryTree]))
 
     def parseQuery(self, query):
-        if not re.search('^[\-\.\:\_a-zA-Z0-9 ]*$', query):
+        if not re.search(r'^[\-\.\:\_a-zA-Z0-9 ]*$', query):
             raise BadQuery("Oops, can't understand search '%s'. Searches must contain only letters, numbers, minus signs, colons, periods, underscores, and spaces."
                            % query)
         queryClauses = query.split()

@@ -47,4 +47,4 @@ urlpatterns = patterns(
     # Mobile *if* user authentication is off (not recommended!).
     (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 
-    )
+)

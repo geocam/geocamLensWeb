@@ -168,7 +168,7 @@ def doit(opts, importDirs):
     if opts.secure:
         opts.upload = True
         assert opts.url
-        if opts.password == None:
+        if opts.password is None:
             opts.password = getpass.getpass('password for %s at %s: ' % (opts.user, opts.url))
     if opts.upload:
         opts.url = opts.url.rstrip('/')

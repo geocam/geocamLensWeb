@@ -15,6 +15,8 @@ from geocamUtil import KmlUtil
 from geocamLens.models import GoogleEarthSession
 from geocamLens import settings
 
+# pylint: disable=C1001
+
 CACHED_CSS = None
 
 

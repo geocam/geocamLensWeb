@@ -37,6 +37,8 @@ from geocamFolder.models import Folder
 
 from geocamLens import settings
 
+# pylint: disable=C1001,E1101
+
 TIME_ZONES = None
 TOP_TIME_ZONES = ['US/Pacific', 'US/Eastern', 'US/Central', 'US/Mountain']
 TIME_ZONES = TOP_TIME_ZONES + [tz for tz in pytz.common_timezones
@@ -84,7 +86,7 @@ STATUS_CHOICES = (
     (STATUS_ACTIVE, 'active'),
     # deleted but not purged yet
     (STATUS_DELETED, 'deleted'),
-    )
+)
 
 WF_NEEDS_EDITS = 0
 WF_SUBMITTED_FOR_VALIDATION = 1
@@ -95,7 +97,7 @@ WORKFLOW_STATUS_CHOICES = (
     (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
     (WF_VALID, 'Valid'),
     (WF_REJECTED, 'Rejected'),
-    )
+)
 DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
 
 CARDINAL_DIRECTIONS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
@@ -176,7 +178,7 @@ class Image(coreModels.PointFeature):
 
     def calcThumbSize(self, fullWidth, fullHeight, maxOutWidth,
                       maxOutHeight=None):
-        if maxOutHeight == None:
+        if maxOutHeight is None:
             maxOutHeight = (maxOutWidth * 3) // 4
         if float(maxOutWidth) / fullWidth < float(maxOutHeight) / fullHeight:
             thumbWidth = maxOutWidth
@@ -233,7 +235,7 @@ class Image(coreModels.PointFeature):
                          % (w0, h0, self.getThumbnailUrl(w0), w, h))
 
     def getRotatedIconDict(self):
-        if self.yaw == None:
+        if self.yaw is None:
             return self.getStyledIconDict()
         rot = self.yaw
         rotRounded = 10 * int(0.1 * rot + 0.5)
@@ -275,10 +277,11 @@ class Image(coreModels.PointFeature):
      border="0"
      />
   </a>
-""" % dict(viewerUrl=viewerUrl,
-           thumbnailUrl=thumbnailUrl,
-           dw=dw,
-           dh=dh))
+""" %
+                          dict(viewerUrl=viewerUrl,
+                               thumbnailUrl=thumbnailUrl,
+                               dw=dw,
+                               dh=dh))
         else:
             result.append("""
 <div><a href="%(viewerUrl)s">Show detail view</a></div>
@@ -304,16 +307,16 @@ class Image(coreModels.PointFeature):
             folderMatches = Folder.objects.filter(name=folderName)
             if folderMatches:
                 folder = folderMatches[0]
-        if folder == None:
+        if folder is None:
             folder = Folder.objects.get(id=1)
 
         tzone = pytz.timezone(settings.TIME_ZONE)
         timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
-        if timestampStr == None:
+        if timestampStr is None:
             timestampUtc = None
         else:
             timestampLocal = parseUploadTime(timestampStr)
-            if timestampLocal.tzinfo == None:
+            if timestampLocal.tzinfo is None:
                 timestampLocal = tzone.localize(timestampLocal)
             timestampUtc = (timestampLocal
                             .astimezone(pytz.utc)
@@ -340,7 +343,7 @@ class Image(coreModels.PointFeature):
                          yaw=yaw,
                          yawRef=yawRef)
         formVals = dict([(k, v) for k, v in formVals0.iteritems()
-                         if Xmp.checkMissing(v) != None])
+                         if Xmp.checkMissing(v) is not None])
         return formVals
 
     @staticmethod
@@ -371,7 +374,7 @@ class Image(coreModels.PointFeature):
 
         # find any '#foo' hashtags in notes and add them to the tags field
         if 'notes' in vals:
-            for hashtag in re.finditer('\#([\w0-9_]+)', vals['notes']):
+            for hashtag in re.finditer(r'\#([\w0-9_]+)', vals['notes']):
                 tagsList.append(hashtag.group(1))
             vals['tags'] = self.makeTagsString(tagsList)
 
@@ -384,15 +387,15 @@ class Image(coreModels.PointFeature):
     def getImportVals(self, storePath=None, uploadImageFormData=None):
         vals = {'icon': settings.GEOCAM_LENS_DEFAULT_ICON}
 
-        if storePath != None:
+        if storePath is not None:
             xmpVals = self.getXmpVals(storePath)
             print >> sys.stderr, 'getImportVals: exif/xmp data:', xmpVals
             vals.update(xmpVals)
 
-        if uploadImageFormData != None:
+        if uploadImageFormData is not None:
             formVals = self.getUploadImageFormVals(uploadImageFormData)
             print >> sys.stderr, 'getImportVals: UploadImageForm data:', \
-                  formVals
+                formVals
             vals.update(formVals)
 
         self.processVals(vals)
@@ -455,7 +458,7 @@ class Image(coreModels.PointFeature):
         return pytz.timezone(settings.DEFAULT_TIME_ZONE['code'])
 
     def getCaptionTimeStamp(self):
-        if self.timestamp == None:
+        if self.timestamp is None:
             return '(unknown)'
         else:
             tzone = self.getCaptionTimeZone()
@@ -467,20 +470,20 @@ class Image(coreModels.PointFeature):
             return '%s %s' % (str(localizedDt), tzName)
 
     def getCaptionFieldLatLon(self):
-        if self.latitude == None:
+        if self.latitude is None:
             val = '(unknown)'
         else:
             val = '%.5f, %.5f' % (self.latitude, self.longitude)
         return ['lat, lon', val]
 
     def getCaptionFieldHeading(self):
-        if self.yaw == None:
+        if self.yaw is None:
             val = '(unknown)'
         else:
             dirIndex = int(round(self.yaw / 22.5)) % 16
             cardinal = CARDINAL_DIRECTIONS[dirIndex]
 
-            if self.yawRef == None:
+            if self.yawRef is None:
                 yawStr = 'unknown'
             else:
                 yawStr = YAW_REF_LOOKUP[self.yawRef]
@@ -490,7 +493,7 @@ class Image(coreModels.PointFeature):
         return ['heading', val]
 
     def getCaptionFieldTime(self):
-        if self.timestamp == None:
+        if self.timestamp is None:
             val = '(unknown)'
         else:
             val = self.getCaptionTimeStamp()
@@ -504,13 +507,13 @@ class Image(coreModels.PointFeature):
         return ['latLon', 'heading', 'time']
 
     def getCaptionHeader(self):
-        if self.timestamp == None:
+        if self.timestamp is None:
             tsVal = '(unknown)'
         else:
             tsVal = (TimeUtil
                      .getTimeShort(self.timestamp,
                                    tz=self.getCaptionTimeZone()))
-        if self.name == None:
+        if self.name is None:
             nameVal = '(untitled)'
         else:
             nameVal = self.name

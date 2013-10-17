@@ -12,6 +12,8 @@ from geocamUtil.forms.UuidField import UuidField
 
 from geocamLens.models import Photo
 
+# pylint: disable=R0924,E1101,C1001
+
 
 # the field names in this form are currently retained for backward compatibility with old versions
 # of GeoCam Mobile

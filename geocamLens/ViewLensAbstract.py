@@ -66,7 +66,7 @@ class ViewLensAbstract(ViewKml):
                 numFeatures = int(numFeaturesParam)
         else:
             numFeatures = settings.GEOCAM_LENS_DEFAULT_NUM_FEATURES
-        if numFeatures != None:
+        if numFeatures is not None:
             matches = matches[:numFeatures]
 
         if errorMessage:

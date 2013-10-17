@@ -14,6 +14,8 @@ import PIL.Image
 
 from geocamUtil import MimeMultipartFormData
 
+# pylint: disable=C1001
+
 
 class UploadClient:
     def __init__(self, url, userName='root', password=''):
@@ -80,7 +82,7 @@ class UploadClient:
     def uploadTrack(self, url, trackName, attributes=None):
         trackData = file(trackName, 'r').read()
 
-        if attributes == None:
+        if attributes is None:
             attributes = dict(trackUploadProtocolVersion='1.0')
 
         #cookieProcessor = urllib2.HTTPCookieProcessor()
