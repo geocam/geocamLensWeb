@@ -17,15 +17,20 @@ from django.test.client import Client
 
 
 class ValidKmlTest(TestCase):
-    def testStartSessionValid(self):
-        """
-        Tests that querying startSession.kml returns valid XML.
-        """
-        c = Client()
-        response = c.get('/kml/startSession.kml')
-        # check for http success status
-        self.failUnlessEqual(response.status_code, 200)
-        # check response is not empty
-        self.failIfEqual("", response.content)
-        # check response parses as XML (if not, exception causes failure)
-        minidom.parseString(response.content)
+    pass
+
+    # this test doesn't work outside the original geocamShare
+    # environment. need tests that are portable to other sites.
+
+    # def testStartSessionValid(self):
+    #     """
+    #     Tests that querying startSession.kml returns valid XML.
+    #     """
+    #     c = Client()
+    #     response = c.get('/kml/startSession.kml')
+    #     # check for http success status
+    #     self.failUnlessEqual(response.status_code, 200)
+    #     # check response is not empty
+    #     self.failIfEqual("", response.content)
+    #     # check response parses as XML (if not, exception causes failure)
+    #     minidom.parseString(response.content)
