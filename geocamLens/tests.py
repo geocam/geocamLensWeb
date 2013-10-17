@@ -11,9 +11,8 @@ unittest). These will both pass when you run "manage.py test".
 Replace these with more appropriate tests for your application.
 """
 
-from xml.dom import minidom
+# from xml.dom import minidom
 from django.test import TestCase
-from django.test.client import Client
 
 
 class ValidKmlTest(TestCase):
@@ -26,8 +25,7 @@ class ValidKmlTest(TestCase):
     #     """
     #     Tests that querying startSession.kml returns valid XML.
     #     """
-    #     c = Client()
-    #     response = c.get('/kml/startSession.kml')
+    #     response = self.client.get('/kml/startSession.kml')
     #     # check for http success status
     #     self.failUnlessEqual(response.status_code, 200)
     #     # check response is not empty
