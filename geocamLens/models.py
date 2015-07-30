@@ -163,7 +163,7 @@ class Image(coreModels.PointFeature):
     snapshot_set = generic.GenericRelation(Snapshot,
                                            content_type_field='imgType',
                                            object_id_field='imgId',
-                                           related_name='%(app_label)s_%(class)s_set')
+                                           related_query_name='%(app_label)s_%(class)s_set')
 
     viewerExtension = '.jpg'
 
