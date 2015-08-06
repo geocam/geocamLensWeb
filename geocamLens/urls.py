@@ -8,7 +8,7 @@ from django.conf.urls import patterns
 
 from geocamUtil.FileUtil import importModuleByName
 
-from geocamLens import settings
+from django.conf import settings
 
 views = importModuleByName(settings.GEOCAM_LENS_VIEW_MODULE).viewSingleton
 

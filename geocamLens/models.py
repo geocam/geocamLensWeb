@@ -35,7 +35,7 @@ from geocamUtil import TimeUtil
 import geocamCore.models as coreModels
 from geocamFolder.models import Folder
 
-from geocamLens import settings
+from django.conf import settings
 
 # pylint: disable=C1001,E1101
 

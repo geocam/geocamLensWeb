@@ -14,7 +14,7 @@ from geocamUtil.Builder import Builder
 from geocamUtil.icons import svg, rotate, halo
 from geocamUtil.Installer import Installer
 
-from geocamLens import settings
+from django.conf import settings
 
 
 class Command(NoArgsCommand):

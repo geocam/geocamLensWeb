@@ -10,7 +10,6 @@ geocamLens
 
 import django.conf
 
-from geocamUtil.MultiSettings import MultiSettings
 from geocamCore import defaultSettings as coreDefaults
 from geocamLens import defaultSettings as lensDefaults
 
@@ -36,5 +35,3 @@ def get_version():
     return ''.join(vers)
 
 __version__ = get_version()
-
-settings = MultiSettings(django.conf.settings, coreDefaults, lensDefaults)

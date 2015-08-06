@@ -25,7 +25,7 @@ from geocamLens.models import Image
 from geocamLens.forms import UploadImageForm, EditImageForm
 from geocamLens.ViewKml import ViewKml
 from geocamLens.SearchAbstract import BadQuery
-from geocamLens import settings
+from django.conf import settings
 
 cacheIcons(os.path.join(settings.STATIC_ROOT, 'geocamLens', 'icons', 'map'))
 cacheIcons(os.path.join(settings.STATIC_ROOT, 'geocamLens', 'icons', 'mapr'))

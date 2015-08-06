@@ -13,7 +13,7 @@ from django.core import urlresolvers
 from geocamUtil import KmlUtil
 
 from geocamLens.models import GoogleEarthSession
-from geocamLens import settings
+from django.conf import settings
 
 # pylint: disable=C1001
 

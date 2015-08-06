@@ -25,7 +25,7 @@ from geocamFolder.models import Folder
 
 from geocamLens.UploadClient import UploadClient
 from geocamLens.models import Photo
-from geocamLens import settings
+from django.conf import settings
 
 
 def checkMissing(val):
