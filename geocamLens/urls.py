@@ -4,7 +4,7 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.conf.urls import patterns
+from django.conf.urls import url
 
 from geocamUtil.FileUtil import importModuleByName
 
@@ -12,39 +12,37 @@ from django.conf import settings
 
 views = importModuleByName(settings.GEOCAM_LENS_VIEW_MODULE).viewSingleton
 
-urlpatterns = patterns(
-    '',
-
+urlpatterns = [
     # kml
-    (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession,
+    url(r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession,
      {'readOnly': True}, 'geocamLens_kmlStartSession'),
-    (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
+    url(r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
      # google earth can't handle django challenge
      {'challenge': 'basic',
       'readOnly': True},
      'geocamLens_kmlGetSessionResponse'),
-    (r'^feed\.kml$', views.kmlFeed,
+    url(r'^feed\.kml$', views.kmlFeed,
      {'readOnly': True},
      'geocamLens_kml'),
 
     # features
-    (r'^features.json', views.featuresJson, {'readOnly': True}),
-    (r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
-    (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
+    url(r'^features.json', views.featuresJson, {'readOnly': True}),
+    url(r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
+    url(r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
 
-    (r'^photo/(?P<imgId>[^/]+)/(?:[^/]+)?$', views.viewPhoto,
+    url(r'^photo/(?P<imgId>[^/]+)/(?:[^/]+)?$', views.viewPhoto,
      {'readOnly': True}),
 
-    (r'^upload/$', views.uploadImageAuth),
+    url(r'^upload/$', views.uploadImageAuth),
     # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
-    (r'^upload-m/$', views.uploadImageAuth,
+    url(r'^upload-m/$', views.uploadImageAuth,
      {'challenge': 'basic'}),
 
-    (r'^edit/photo/(?P<imgId>[^/]+)/$', views.editImageWrapper),
-    (r'^editWidget/photo/(?P<imgId>[^/]+)/$', views.editImage),
+    url(r'^edit/photo/(?P<imgId>[^/]+)/$', views.editImageWrapper),
+    url(r'^editWidget/photo/(?P<imgId>[^/]+)/$', views.editImage),
 
     # legacy URLs, compatible with the old version of GeoCam
     # Mobile *if* user authentication is off (not recommended!).
-    (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
+    url(r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 
-)
+]

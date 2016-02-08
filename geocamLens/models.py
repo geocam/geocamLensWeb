@@ -22,7 +22,8 @@ import PIL.Image
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
 import tagging
 
 from geocamUtil.models.UuidField import UuidField
@@ -127,7 +128,7 @@ class Snapshot(models.Model):
     # specifies which image this snapshot is associated with based on
     # imgType (which db table to look in) and imgId (which row in the
     # table).
-    img = generic.GenericForeignKey('imgType', 'imgId')
+    img = GenericForeignKey('imgType', 'imgId')
 
     def save(self, updateDate=True, **kwargs):
         if updateDate:
@@ -160,10 +161,10 @@ class Image(coreModels.PointFeature):
     # snapshot_set is a virtual field, not actually present in the db,
     # which specifies how to look up the snapshots associated with this
     # image.
-    snapshot_set = generic.GenericRelation(Snapshot,
-                                           content_type_field='imgType',
-                                           object_id_field='imgId',
-                                           related_query_name='%(app_label)s_%(class)s_set')
+    snapshot_set = GenericRelation(Snapshot,
+                                   content_type_field='imgType',
+                                   object_id_field='imgId',
+                                   related_query_name='%(app_label)s_%(class)s_set')
 
     viewerExtension = '.jpg'
 
