@@ -20,7 +20,7 @@ from django.conf import settings
 class Command(BaseCommand):
     help = 'Prep geocamLens app'
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
         up = os.path.dirname
         appDir = up(up(up(os.path.abspath(__file__))))
         print 'appDir:', appDir
