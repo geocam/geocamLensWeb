@@ -8,7 +8,7 @@ import logging
 import os
 from glob import glob
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 
 from geocamUtil.Builder import Builder
 from geocamUtil.icons import svg, rotate, halo
@@ -17,7 +17,7 @@ from geocamUtil.Installer import Installer
 from django.conf import settings
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = 'Prep geocamLens app'
 
     def handle_noargs(self, **options):
