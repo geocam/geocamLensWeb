@@ -12,7 +12,7 @@ import tempfile
 
 import PIL.Image
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
@@ -128,11 +128,11 @@ class ViewLensAbstract(ViewKml):
                                         mimetype='application/json')
         else:
             form = EditImageForm(instance=img)
-        return (render_to_response
-                (template,
-                 dict(img=img,
-                      form=form),
-                 context_instance=RequestContext(request)))
+        return render(request,
+                      template,
+                      dict(img=img,
+                           form=form),
+                      )
 
     def editImage(self, request, imgId):
         return self.editImage0(request, imgId, 'editImage.html')
@@ -235,11 +235,12 @@ class ViewLensAbstract(ViewKml):
         else:
             form = UploadImageForm()
             #print 'form:', form
-        resp = render_to_response('upload.html',
-                                  dict(form=form,
-                                       author=author,
-                                       ),
-                                  context_instance=RequestContext(request))
+        resp = render(request,
+                      'upload.html',
+                      dict(form=form,
+                           author=author,
+                           ),
+                      )
         print >> sys.stderr, 'upload image end'
         return resp
 
